@@ -1,5 +1,6 @@
 // pages/LoginPage.jsx - Login and Registration Page with JWT
 import React, { useState } from 'react';
+import axios from 'axios';
 import Button from '../components/Button';
 import { Lock, Mail, User, ShieldCheck, Sparkles, AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -13,52 +14,57 @@ export default function LoginPage({ onLoginSuccess, onGuestContinue }) {
   const [successMsg, setSuccessMsg] = useState('');
 
   // Handle Form Submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrorMsg('');
-    setSuccessMsg('');
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setErrorMsg('');
+  setSuccessMsg('');
 
-    if (isRegister && !name.trim()) {
-      setErrorMsg('Please enter your full name.');
-      return;
+  if (isRegister && !name.trim()) {
+    setErrorMsg('Please enter your full name.');
+    return;
+  }
+
+  if (!email.trim() || !password) {
+    setErrorMsg('Please enter both email and password.');
+    return;
+  }
+
+  setIsLoading(true);
+
+  try {
+    const response = await axios.post(
+      isRegister
+        ? `${import.meta.env.VITE_API_URL}/api/auth/register`
+        : `${import.meta.env.VITE_API_URL}/api/auth/login`,
+      isRegister
+        ? { name, email, password }
+        : { email, password }
+    );
+
+    const data = response.data;
+
+    if (!data.success) {
+      throw new Error(data.message || 'Authentication failed. Please try again.');
     }
-    if (!email.trim() || !password) {
-      setErrorMsg('Please enter both email and password.');
-      return;
-    }
 
-    setIsLoading(true);
+    localStorage.setItem('food_app_token', data.token);
+    localStorage.setItem('food_app_user', JSON.stringify(data.user));
 
-    const endpoint = isRegister ? '/api/auth/register' : '/api/auth/login';
-    const payload = isRegister ? { name, email, password } : { email, password };
+    setSuccessMsg(data.message || 'Success! Redirecting...');
 
-    try {
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Authentication failed. Please try again.');
-      }
-
-      // Store JWT token in localStorage
-      localStorage.setItem('food_app_token', data.token);
-      localStorage.setItem('food_app_user', JSON.stringify(data.user));
-
-      setSuccessMsg(data.message || 'Success! Redirecting...');
-      setTimeout(() => {
-        onLoginSuccess(data.user, data.token);
-      }, 600);
-    } catch (err) {
-      setErrorMsg(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    setTimeout(() => {
+      onLoginSuccess(data.user, data.token);
+    }, 600);
+  } catch (err) {
+    setErrorMsg(
+      err.response?.data?.message ||
+      err.message ||
+      'Authentication failed. Please try again.'
+    );
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   // Quick autofill to make testing effortless
   const handleQuickFill = () => {
