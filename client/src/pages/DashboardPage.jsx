@@ -52,63 +52,60 @@ export default function DashboardPage({ user, token }) {
   }, [token]);
 
   // Handle image analysis trigger from ImageUpload
-  const handleAnalyze = async ({ file, presetName, imageUrl }) => {
-    setIsAnalyzing(true);
-    setSystemNotice('');
+const handleAnalyze = async ({ file, presetName, imageUrl }) => {
+  setIsAnalyzing(true);
+  setSystemNotice('');
 
-    try {
-      let response;
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
+  try {
+    let response;
 
-      if (file) {
-        const formData = new FormData();
-        formData.append('image', file);
+    if (file) {
+      const formData = new FormData();
+      formData.append('image', file);
 
-        response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/food/analyze`,
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-      } else {
-        response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/food/analyze`,
-          {
-            imageBase64: imageUrl,
-            foodHint: presetName,
+      response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/food/analyze`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-      }
-
-      const result = response.data;
-
-      if (!result.success) {
-        throw new Error(result.message || 'Failed to analyze food.');
-      }
-      setActiveAnalysis({
-        ...result.data,
-        usedAi: result.usedAi,
-        aiNotice: result.aiNotice,
-      });
-
-      // Refresh history list
-      fetchHistory();
-    } catch (err) {
-      alert(`Analysis error: ${err.message}`);
-    } finally {
-      setIsAnalyzing(false);
+        }
+      );
+    } else {
+      response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/food/analyze`,
+        {
+          imageBase64: imageUrl,
+          foodHint: presetName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
     }
-  };
+
+    const result = response.data;
+
+    if (!result.success) {
+      throw new Error(result.message || 'Failed to analyze food.');
+    }
+
+    setActiveAnalysis({
+      ...result.data,
+      usedAi: result.usedAi,
+      aiNotice: result.aiNotice,
+    });
+
+    fetchHistory();
+  } catch (err) {
+    alert(`Analysis error: ${err.response?.data?.message || err.message}`);
+  } finally {
+    setIsAnalyzing(false);
+  }
+};
 
   // Delete an item from history
   const handleDeleteHistory = async (id, e) => {
