@@ -128,13 +128,19 @@ JSON format:
       },
     };
 
-    // Use gemini-2.0-flash with fallback to gemini-1.5-flash / gemini-1.5-pro
-    const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
+    // Valid model names for @google/generative-ai SDK v0.x
+    // gemini-1.5-flash-latest is the most widely available vision model
+    const candidateModels = [
+      'gemini-1.5-flash-latest',
+      'gemini-1.5-flash',
+      'gemini-1.5-flash-8b',
+    ];
     let parsedData = null;
     let lastError = null;
 
     for (const modelName of candidateModels) {
       try {
+        console.log(`🔄 Trying model: ${modelName}...`);
         const model = genAI.getGenerativeModel({ model: modelName });
         const result = await model.generateContent([prompt, imagePart]);
         const responseText = result.response.text();
@@ -144,9 +150,11 @@ JSON format:
           parsedData = parsed;
           console.log(`✅ Successfully analyzed with ${modelName}:`, parsedData.foodName);
           break;
+        } else {
+          console.warn(`⚠️ ${modelName} returned invalid JSON structure, trying next...`);
         }
       } catch (err) {
-        console.warn(`Model ${modelName} attempt failed:`, err.message);
+        console.warn(`❌ Model ${modelName} failed: [${err.status || err.code || 'ERR'}] ${err.message}`);
         lastError = err;
       }
     }
