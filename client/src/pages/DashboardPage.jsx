@@ -1,5 +1,5 @@
 // pages/DashboardPage.jsx - Main Food Scanner & Nutrient Analytics Dashboard
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import ImageUpload from '../components/ImageUpload';
 import NutrientDisplay from '../components/NutrientDisplay';
@@ -21,6 +21,7 @@ export default function DashboardPage({ user, token }) {
   const [history, setHistory] = useState([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState(false);
   const [systemNotice, setSystemNotice] = useState('');
+  const resultsRef = useRef(null);
 
   // Fetch scan history on load or after new scan
   const fetchHistory = async () => {
@@ -50,6 +51,15 @@ export default function DashboardPage({ user, token }) {
   useEffect(() => {
     fetchHistory();
   }, [token]);
+
+  // On mobile: auto-scroll to results when analysis completes
+  useEffect(() => {
+    if (activeAnalysis && resultsRef.current && window.innerWidth <= 768) {
+      setTimeout(() => {
+        resultsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 150);
+    }
+  }, [activeAnalysis]);
 
   // Handle image analysis trigger from ImageUpload
 const handleAnalyze = async ({ file, presetName, imageUrl }) => {
@@ -345,7 +355,7 @@ const handleAnalyze = async ({ file, presetName, imageUrl }) => {
           </div>
 
           {activeAnalysis && (
-            <div>
+            <div ref={resultsRef}>
               <NutrientDisplay
                 data={activeAnalysis}
                 aiNotice={activeAnalysis.aiNotice}
