@@ -68,7 +68,7 @@ exports.analyzeFoodImage = async (req, res) => {
       });
     }
 
-    console.log('🤖 Sending image to Google Gemini Vision (gemini-3.6-flash)...');
+    console.log('🤖 Sending image to Google Gemini Vision (gemini-2.0-flash)...');
     const genAI = new GoogleGenerativeAI(apiKey);
 
     const prompt = `You are an elite clinical nutritionist and food scientist.
@@ -128,8 +128,8 @@ JSON format:
       },
     };
 
-    // Use gemini-3.6-flash with fallback to gemini-3.8-flash / gemini-flash-latest
-    const candidateModels = ['gemini-3.6-flash', 'gemini-3.8-flash', 'gemini-flash-latest'];
+    // Use gemini-2.0-flash with fallback to gemini-1.5-flash / gemini-1.5-pro
+    const candidateModels = ['gemini-2.0-flash', 'gemini-1.5-flash', 'gemini-1.5-pro'];
     let parsedData = null;
     let lastError = null;
 
