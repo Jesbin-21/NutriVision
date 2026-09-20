@@ -1,5 +1,6 @@
 // pages/DashboardPage.jsx - Main Food Scanner & Nutrient Analytics Dashboard
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import ImageUpload from '../components/ImageUpload';
 import NutrientDisplay from '../components/NutrientDisplay';
 import Button from '../components/Button';
@@ -26,12 +27,16 @@ export default function DashboardPage({ user, token }) {
     if (!token) return;
     try {
       setIsLoadingHistory(true);
-      const res = await fetch('/api/food/history', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await res.json();
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/food/history`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = res.data;
       if (data.success && data.history) {
         setHistory(data.history);
       }
@@ -53,40 +58,43 @@ export default function DashboardPage({ user, token }) {
 
     try {
       let response;
-      const headers = {};
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
       if (file) {
-        // Send as FormData multipart/form-data
         const formData = new FormData();
         formData.append('image', file);
 
-        response = await fetch('/api/food/analyze', {
-          method: 'POST',
-          headers: headers,
-          body: formData,
-        });
+        response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/food/analyze`,
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
       } else {
-        // Send base64 or preset image URL
-        headers['Content-Type'] = 'application/json';
-        response = await fetch('/api/food/analyze', {
-          method: 'POST',
-          headers: headers,
-          body: JSON.stringify({
+        response = await axios.post(
+          `${import.meta.env.VITE_API_URL}/api/food/analyze`,
+          {
             imageBase64: imageUrl,
             foodHint: presetName,
-          }),
-        });
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
       }
 
-      const result = await response.json();
+      const result = response.data;
 
-      if (!response.ok || !result.success) {
+      if (!result.success) {
         throw new Error(result.message || 'Failed to analyze food.');
       }
-
       setActiveAnalysis({
         ...result.data,
         usedAi: result.usedAi,
@@ -107,13 +115,16 @@ export default function DashboardPage({ user, token }) {
     e.stopPropagation();
     if (!confirm('Are you sure you want to delete this scan from history?')) return;
     try {
-      const res = await fetch(`/api/food/history/${id}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await res.json();
+      const res = await axios.delete(
+        `${import.meta.env.VITE_API_URL}/api/food/history/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      const data = res.data;
       if (data.success) {
         setHistory((prev) => prev.filter((item) => (item._id || item.id) !== id));
       }
