@@ -1,0 +1,11 @@
+{
+  "name": "food-analyzer-project",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "server": "npm --prefix backend run dev",
+    "client": "npm --prefix client run dev",
+    "dev:server": "npm --prefix backend run dev",
+    "dev:client": "npm --prefix client run dev"
+  }
+}
