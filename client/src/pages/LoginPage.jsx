@@ -79,11 +79,12 @@ const handleSubmit = async (e) => {
       {/* Responsive styles injected via <style> tag */}
       <style>{`
         .login-page-wrapper {
-          min-height: calc(100vh - 70px);
+          min-height: calc(100vh - 68px);
           display: flex;
           align-items: center;
           justify-content: center;
           padding: 2rem 1rem;
+          background: var(--bg-base, #f8fafc);
         }
 
         .login-card {
@@ -92,28 +93,36 @@ const handleSubmit = async (e) => {
           padding: 2.5rem 2rem;
           position: relative;
           overflow: hidden;
+          background: var(--bg-surface, #ffffff);
+          border: 1px solid var(--border-subtle, rgba(15,23,42,0.08));
+          border-radius: 24px;
+          box-shadow: 0 10px 40px rgba(15, 23, 42, 0.10);
         }
 
         .login-title {
           text-align: center;
           font-size: 1.75rem;
+          font-weight: 800;
           margin-bottom: 0.35rem;
-          color: #ffffff;
+          color: var(--text-primary, #0f172a);
+          letter-spacing: -0.02em;
         }
 
         .login-subtitle {
           text-align: center;
-          color: var(--text-muted);
+          color: var(--text-muted, #64748b);
           font-size: 0.9rem;
           margin-bottom: 1.75rem;
+          line-height: 1.5;
         }
 
         .login-tab-switcher {
           display: flex;
-          background: rgba(255, 255, 255, 0.05);
+          background: var(--bg-elevated, #f1f5f9);
           padding: 4px;
           border-radius: 12px;
           margin-bottom: 1.75rem;
+          border: 1px solid var(--border-subtle, rgba(15,23,42,0.08));
         }
 
         .login-tab-btn {
@@ -125,32 +134,46 @@ const handleSubmit = async (e) => {
           font-size: 0.9rem;
           cursor: pointer;
           transition: all 0.2s;
+          font-family: inherit;
         }
 
         .login-input {
           width: 100%;
           padding: 0.75rem 1rem 0.75rem 2.6rem;
           border-radius: 10px;
-          background: rgba(255, 255, 255, 0.04);
-          border: 1px solid var(--border-subtle);
-          color: #ffffff;
+          background: var(--bg-elevated, #f1f5f9);
+          border: 1px solid var(--border-medium, rgba(15,23,42,0.14));
+          color: var(--text-primary, #0f172a);
           font-size: 0.92rem;
           outline: none;
           box-sizing: border-box;
+          font-family: inherit;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .login-input:focus {
+          border-color: #10b981;
+          box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.12);
+          background: #ffffff;
+        }
+
+        .login-input::placeholder {
+          color: var(--text-subtle, #94a3b8);
         }
 
         .login-label {
           display: block;
-          font-size: 0.85rem;
+          font-size: 0.82rem;
           font-weight: 600;
-          color: var(--text-muted);
+          color: var(--text-secondary, #334155);
           margin-bottom: 0.35rem;
+          letter-spacing: 0.01em;
         }
 
         .login-footer {
           margin-top: 1.5rem;
           padding-top: 1.25rem;
-          border-top: 1px solid var(--border-subtle);
+          border-top: 1px solid var(--border-subtle, rgba(15,23,42,0.08));
           display: flex;
           flex-direction: column;
           gap: 0.75rem;
@@ -159,13 +182,19 @@ const handleSubmit = async (e) => {
         .login-guest-btn {
           background: transparent;
           border: none;
-          color: var(--text-subtle);
+          color: var(--text-muted, #64748b);
           font-size: 0.85rem;
           cursor: pointer;
           text-align: center;
           text-decoration: underline;
           padding: 0.25rem;
           min-height: 44px;
+          font-family: inherit;
+          transition: color 0.2s ease;
+        }
+
+        .login-guest-btn:hover {
+          color: var(--text-primary, #0f172a);
         }
 
         /* ── Mobile (≤ 480px) ── */
@@ -178,7 +207,7 @@ const handleSubmit = async (e) => {
 
           .login-card {
             padding: 1.5rem 1.1rem;
-            border-radius: 16px;
+            border-radius: 20px;
           }
 
           .login-title {
@@ -253,13 +282,13 @@ const handleSubmit = async (e) => {
               width: '54px',
               height: '54px',
               borderRadius: '16px',
-              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 182, 212, 0.2))',
-              border: '1px solid rgba(16, 185, 129, 0.4)',
+              background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(6, 182, 212, 0.12))',
+              border: '1px solid rgba(16, 185, 129, 0.25)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               margin: '0 auto 1.25rem',
-              color: '#34d399',
+              color: '#059669',
             }}
           >
             <Lock size={26} />
@@ -286,8 +315,9 @@ const handleSubmit = async (e) => {
                 setSuccessMsg('');
               }}
               style={{
-                background: !isRegister ? '#1e293b' : 'transparent',
-                color: !isRegister ? '#ffffff' : 'var(--text-muted)',
+                background: !isRegister ? '#ffffff' : 'transparent',
+                color: !isRegister ? 'var(--text-primary)' : 'var(--text-muted)',
+                boxShadow: !isRegister ? '0 1px 3px rgba(0, 0, 0, 0.08)' : 'none',
               }}
             >
               Sign In
@@ -302,8 +332,9 @@ const handleSubmit = async (e) => {
                 setSuccessMsg('');
               }}
               style={{
-                background: isRegister ? '#1e293b' : 'transparent',
-                color: isRegister ? '#ffffff' : 'var(--text-muted)',
+                background: isRegister ? '#ffffff' : 'transparent',
+                color: isRegister ? 'var(--text-primary)' : 'var(--text-muted)',
+                boxShadow: isRegister ? '0 1px 3px rgba(0, 0, 0, 0.08)' : 'none',
               }}
             >
               Register
@@ -318,9 +349,9 @@ const handleSubmit = async (e) => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                background: 'rgba(244, 63, 94, 0.12)',
-                border: '1px solid rgba(244, 63, 94, 0.3)',
-                color: '#fb7185',
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.25)',
+                color: '#dc2626',
                 padding: '0.75rem 1rem',
                 borderRadius: '10px',
                 fontSize: '0.85rem',
@@ -339,9 +370,9 @@ const handleSubmit = async (e) => {
                 display: 'flex',
                 alignItems: 'center',
                 gap: '0.5rem',
-                background: 'rgba(16, 185, 129, 0.12)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                color: '#34d399',
+                background: 'rgba(16, 185, 129, 0.08)',
+                border: '1px solid rgba(16, 185, 129, 0.25)',
+                color: '#059669',
                 padding: '0.75rem 1rem',
                 borderRadius: '10px',
                 fontSize: '0.85rem',
@@ -455,7 +486,7 @@ const handleSubmit = async (e) => {
               variant="secondary"
               size="sm"
               onClick={handleQuickFill}
-              icon={<Sparkles size={14} color="#34d399" />}
+              icon={<Sparkles size={14} color="#059669" />}
               fullWidth
             >
               Auto-Fill Demo Credentials

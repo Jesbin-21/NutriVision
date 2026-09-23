@@ -1,14 +1,16 @@
+
 // components/ImageUpload.jsx - Food Image Upload & Sample Selection
 
 import React, { useState, useRef } from 'react';
 import Button from './Button';
 import {
   UploadCloud,
-  Image as ImageIcon,
   Sparkles,
   RefreshCw,
   CheckCircle2,
 } from 'lucide-react';
+
+import './ImageUpload.css';
 
 export default function ImageUpload({ onAnalyze, isAnalyzing }) {
   const [dragActive, setDragActive] = useState(false);
@@ -70,7 +72,6 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
         let width = img.width;
         let height = img.height;
 
-        // Resize large images
         if (width > height) {
           if (width > maxSize) {
             height = (height * maxSize) / width;
@@ -112,25 +113,12 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
               const sizeKB = blob.size / 1024;
 
               console.log(
-                `📦 Compression attempt: ${sizeKB.toFixed(1)} KB | quality: ${quality.toFixed(1)}`
+                `📦 Compression attempt: ${sizeKB.toFixed(
+                  1
+                )} KB | quality: ${quality.toFixed(1)}`
               );
 
-              // Stop when image is <= 150 KB
-              if (sizeKB <= 150) {
-                const compressedFile = new File(
-                  [blob],
-                  'food.webp',
-                  {
-                    type: 'image/webp',
-                  }
-                );
-
-                resolve(compressedFile);
-                return;
-              }
-
-              // Don't go below quality 0.1
-              if (quality <= 0.1) {
+              if (sizeKB <= 150 || quality <= 0.1) {
                 const compressedFile = new File(
                   [blob],
                   'food.webp',
@@ -175,7 +163,6 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
         'KB'
       );
 
-      // Compress BEFORE saving it into state
       const compressedFile = await compressImage(file);
 
       console.log(
@@ -184,7 +171,6 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
         'KB'
       );
 
-      // Safety check
       if (compressedFile.size > 150 * 1024) {
         console.warn(
           '⚠️ Image is still larger than 150 KB:',
@@ -193,14 +179,9 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
         );
       }
 
-      // IMPORTANT:
-      // selectedFile now contains ONLY the compressed file
       setSelectedFile(compressedFile);
-
-      // This is a local upload, not a preset
       setSelectedPresetName('');
 
-      // Preview the compressed image
       const previewReader = new FileReader();
 
       previewReader.onload = () => {
@@ -210,13 +191,16 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
       previewReader.readAsDataURL(compressedFile);
     } catch (error) {
       console.error('❌ Compression error:', error);
-      alert('Failed to compress image. Please try another image.');
+      alert(
+        'Failed to compress image. Please try another image.'
+      );
     }
   };
 
   // File input
   const handleFileChange = (e) => {
-    const file = e.target.files && e.target.files[0];
+    const file =
+      e.target.files && e.target.files[0];
 
     if (file) {
       processFile(file);
@@ -228,7 +212,10 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
     e.preventDefault();
     e.stopPropagation();
 
-    if (e.type === 'dragenter' || e.type === 'dragover') {
+    if (
+      e.type === 'dragenter' ||
+      e.type === 'dragover'
+    ) {
       setDragActive(true);
     } else if (e.type === 'dragleave') {
       setDragActive(false);
@@ -254,8 +241,6 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
   const handleSelectPreset = (preset) => {
     setSelectedPresetName(preset.name);
     setPreviewUrl(preset.imageUrl);
-
-    // Preset doesn't use a local file
     setSelectedFile(null);
   };
 
@@ -309,26 +294,13 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
   };
 
   return (
-    <div
-      className="glass-card"
-      style={{ padding: '2rem' }}
-    >
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h2
-          style={{
-            fontSize: '1.5rem',
-            marginBottom: '0.35rem',
-          }}
-        >
-          Upload Food Image
-        </h2>
+    <div className="image-upload-card">
 
-        <p
-          style={{
-            color: 'var(--text-muted)',
-            fontSize: '0.92rem',
-          }}
-        >
+      {/* Header */}
+      <div className="image-upload-header">
+        <h2>Upload Food Image</h2>
+
+        <p>
           Take a photo or upload an image of your meal
           to calculate calories and nutrients with Gemini
           Vision.
@@ -341,11 +313,11 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
         type="file"
         id="food-file-input"
         accept="image/*"
-        style={{ display: 'none' }}
+        className="hidden-file-input"
         onChange={handleFileChange}
       />
 
-      {/* Upload area */}
+      {/* Upload Area */}
       {!previewUrl ? (
         <div
           id="dropzone-area"
@@ -357,141 +329,82 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
             fileInputRef.current &&
             fileInputRef.current.click()
           }
-          style={{
-            border: dragActive
-              ? '2px dashed #10b981'
-              : '2px dashed rgba(255, 255, 255, 0.15)',
-            borderRadius: '16px',
-            padding: '3rem 1.5rem',
-            textAlign: 'center',
-            cursor: 'pointer',
-            background: dragActive
-              ? 'rgba(16, 185, 129, 0.08)'
-              : 'rgba(255, 255, 255, 0.02)',
-            transition: 'all 0.2s ease',
-            marginBottom: '1.5rem',
-          }}
+          className={`upload-dropzone ${
+            dragActive ? 'drag-active' : ''
+          }`}
         >
-          <div
-            style={{
-              width: '64px',
-              height: '64px',
-              margin: '0 auto 1.25rem',
-              borderRadius: '50%',
-              background: 'rgba(16, 185, 129, 0.15)',
-              color: '#34d399',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
+          <div className="upload-icon">
             <UploadCloud size={32} />
           </div>
 
-          <h3
-            style={{
-              fontSize: '1.15rem',
-              marginBottom: '0.4rem',
-            }}
-          >
+          <h3>
             Click or drag & drop food image here
           </h3>
 
-          <p
-            style={{
-              color: 'var(--text-subtle)',
-              fontSize: '0.85rem',
-            }}
-          >
+          <p>
             Supports JPG, PNG, WEBP (up to 10MB)
           </p>
         </div>
       ) : (
-        <div style={{ marginBottom: '1.5rem' }}>
-          <div
-            style={{
-              position: 'relative',
-              borderRadius: '16px',
-              overflow: 'hidden',
-              maxHeight: '320px',
-              border: '1px solid var(--border-subtle)',
-              background: '#000000',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
+        <div className="image-preview-section">
+
+          {/* Image Preview */}
+          <div className="image-preview-container">
             <img
               src={previewUrl}
               alt="Food preview"
               id="food-preview-img"
-              style={{
-                width: '100%',
-                maxHeight: '320px',
-                objectFit: 'cover',
-                display: 'block',
-              }}
+              className="food-preview-img"
             />
 
+            {/* Preset badge */}
             {selectedPresetName && (
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '12px',
-                  left: '12px',
-                  background: 'rgba(0, 0, 0, 0.75)',
-                  backdropFilter: 'blur(8px)',
-                  padding: '0.35rem 0.8rem',
-                  borderRadius: '999px',
-                  fontSize: '0.8rem',
-                  fontWeight: 600,
-                  color: '#34d399',
-                  border:
-                    '1px solid rgba(16, 185, 129, 0.4)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.35rem',
-                }}
-              >
+              <div className="preset-badge">
                 <CheckCircle2 size={14} />
-                Preset: {selectedPresetName}
+
+                <span>
+                  Preset: {selectedPresetName}
+                </span>
               </div>
             )}
           </div>
 
-          <div
-            style={{
-              display: 'flex',
-              gap: '1rem',
-              marginTop: '1.25rem',
-              alignItems: 'center',
-            }}
-          >
-            <Button
-              id="btn-analyze-food"
-              variant="primary"
-              size="lg"
-              onClick={handleSubmit}
-              isLoading={isAnalyzing}
-              icon={<Sparkles size={18} />}
-              fullWidth
-            >
-              Analyze Nutrients with Gemini Vision
-            </Button>
+          {/* Buttons */}
+          <div className="image-action-buttons">
 
-            <Button
-              id="btn-reset-image"
-              variant="secondary"
-              size="lg"
-              onClick={handleReset}
-              disabled={isAnalyzing}
-              icon={<RefreshCw size={16} />}
-            >
-              Change
-            </Button>
+            {/* Analyze */}
+            <div className="analyze-button">
+              <Button
+                id="btn-analyze-food"
+                variant="primary"
+                size="lg"
+                onClick={handleSubmit}
+                isLoading={isAnalyzing}
+                icon={<Sparkles size={18} />}
+                fullWidth
+              >
+                Analyze Nutrients with Gemini Vision
+              </Button>
+            </div>
+
+            {/* Change */}
+            <div className="change-button">
+              <Button
+                id="btn-reset-image"
+                variant="secondary"
+                size="lg"
+                onClick={handleReset}
+                disabled={isAnalyzing}
+                icon={<RefreshCw size={16} />}
+                fullWidth
+              >
+                Change
+              </Button>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 }
+

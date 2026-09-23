@@ -1,0 +1,713 @@
+
+/* =========================================
+   NUTRIENT DISPLAY — Light Theme
+========================================= */
+
+.nutrient-display {
+  padding: 2rem;
+  background: var(--bg-surface);
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--shadow-md);
+}
+
+
+/* =========================================
+   AI MODE BANNER
+========================================= */
+
+.ai-mode-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+
+  padding: 0.75rem 1rem;
+
+  border-radius: 12px;
+
+  margin-bottom: 1.5rem;
+}
+
+.ai-active {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.ai-fallback {
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.ai-active .ai-mode-icon {
+  color: #059669;
+}
+
+.ai-fallback .ai-mode-icon {
+  color: #d97706;
+}
+
+.ai-mode-text {
+  font-size: 0.85rem;
+}
+
+.ai-active .ai-mode-text {
+  color: #047857;
+}
+
+.ai-fallback .ai-mode-text {
+  color: #92400e;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.nutrient-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 1rem;
+
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.food-heading h2 {
+  margin: 0 0 0.25rem;
+
+  font-size: 1.85rem;
+
+  color: var(--text-primary);
+}
+
+.food-heading p {
+  margin: 0;
+
+  color: var(--text-muted);
+
+  font-size: 0.92rem;
+}
+
+.food-heading strong {
+  color: var(--text-primary);
+}
+
+
+/* =========================================
+   HEALTH SCORE
+========================================= */
+
+.health-score-pill {
+  display: flex;
+  align-items: center;
+
+  gap: 0.85rem;
+
+  padding: 0.6rem 1.2rem;
+
+  border-radius: 16px;
+
+  background: rgba(16, 185, 129, 0.08);
+
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.health-score-circle {
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: linear-gradient(
+    135deg,
+    #10b981,
+    #059669
+  );
+
+  font-weight: 800;
+  font-size: 1.1rem;
+
+  color: #ffffff;
+}
+
+.health-score-label {
+  font-size: 0.72rem;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.05em;
+
+  color: #059669;
+
+  font-weight: 700;
+}
+
+.health-score-text {
+  font-size: 0.88rem;
+
+  font-weight: 600;
+
+  color: var(--text-primary);
+}
+
+
+/* =========================================
+   DIETARY TAGS
+========================================= */
+
+.dietary-tags {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 0.5rem;
+
+  margin-bottom: 1.75rem;
+}
+
+.dietary-tag {
+  padding: 0.3rem 0.8rem;
+
+  border-radius: 999px;
+
+  background: var(--bg-elevated);
+
+  border: 1px solid var(--border-medium);
+
+  color: var(--text-secondary);
+
+  font-size: 0.8rem;
+
+  font-weight: 600;
+}
+
+
+/* =========================================
+   MACRO CARDS
+========================================= */
+
+.macro-cards {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(130px, 1fr));
+
+  gap: 1rem;
+
+  margin-bottom: 1.75rem;
+}
+
+.macro-card {
+  padding: 1.25rem;
+
+  border-radius: 16px;
+
+  text-align: center;
+}
+
+
+/* Calories */
+
+.calories-card {
+  background: rgba(249, 115, 22, 0.06);
+
+  border: 1px solid rgba(249, 115, 22, 0.20);
+}
+
+.calories-card .macro-icon {
+  display: flex;
+  justify-content: center;
+
+  margin-bottom: 0.35rem;
+
+  color: #ea580c;
+}
+
+.calories-card .macro-label {
+  color: #c2410c;
+}
+
+
+/* Protein */
+
+.protein-card {
+  background: rgba(244, 63, 94, 0.06);
+
+  border: 1px solid rgba(244, 63, 94, 0.20);
+}
+
+.protein-card .macro-title {
+  color: #e11d48;
+}
+
+
+/* Carbs */
+
+.carbs-card {
+  background: rgba(245, 158, 11, 0.06);
+
+  border: 1px solid rgba(245, 158, 11, 0.20);
+}
+
+.carbs-card .macro-title {
+  color: #d97706;
+}
+
+
+/* Fats */
+
+.fats-card {
+  background: rgba(99, 102, 241, 0.06);
+
+  border: 1px solid rgba(99, 102, 241, 0.20);
+}
+
+.fats-card .macro-title {
+  color: #4f46e5;
+}
+
+
+/* Fiber */
+
+.fiber-card {
+  background: rgba(16, 185, 129, 0.06);
+
+  border: 1px solid rgba(16, 185, 129, 0.20);
+}
+
+.fiber-card .macro-title {
+  color: #059669;
+}
+
+
+/* Macro text */
+
+.macro-title {
+  margin-bottom: 0.25rem;
+
+  font-size: 0.78rem;
+
+  text-transform: uppercase;
+
+  font-weight: 700;
+}
+
+.macro-value {
+  color: var(--text-primary);
+
+  font-size: 1.75rem;
+
+  font-weight: 800;
+
+  line-height: 1.1;
+}
+
+.calories-card .macro-value {
+  font-size: 1.85rem;
+}
+
+.macro-unit {
+  font-size: 1rem;
+
+  font-weight: 500;
+}
+
+.macro-label {
+  margin-top: 0.2rem;
+
+  font-size: 0.8rem;
+
+  font-weight: 600;
+}
+
+.macro-subtext {
+  margin-top: 0.2rem;
+
+  color: var(--text-muted);
+
+  font-size: 0.75rem;
+}
+
+
+/* =========================================
+   MACRO RATIO
+========================================= */
+
+.macro-ratio {
+  margin-bottom: 2rem;
+}
+
+.macro-ratio-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 0.5rem;
+
+  color: var(--text-muted);
+
+  font-size: 0.8rem;
+}
+
+.macro-ratio-bar {
+  display: flex;
+
+  height: 10px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: var(--border-subtle);
+}
+
+.macro-ratio-protein {
+  background: #f43f5e;
+}
+
+.macro-ratio-carbs {
+  background: #f59e0b;
+}
+
+.macro-ratio-fats {
+  background: #6366f1;
+}
+
+
+/* =========================================
+   INGREDIENTS
+========================================= */
+
+.ingredients-section {
+  margin-bottom: 2rem;
+}
+
+.section-header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 0.85rem;
+}
+
+.section-header h3 {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.5rem;
+
+  margin: 0;
+
+  color: var(--text-primary);
+
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.ingredients-icon {
+  color: #d97706;
+}
+
+.section-description {
+  color: var(--text-muted);
+
+  font-size: 0.75rem;
+}
+
+.ingredients-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(200px, 1fr));
+
+  gap: 0.75rem;
+}
+
+.ingredient-item {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 0.5rem;
+
+  padding: 0.75rem 1rem;
+
+  border-radius: 12px;
+
+  background: rgba(245, 158, 11, 0.05);
+
+  border: 1px solid rgba(245, 158, 11, 0.18);
+}
+
+.ingredient-name {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.6rem;
+
+  min-width: 0;
+}
+
+.ingredient-name span {
+  color: var(--text-primary);
+
+  font-size: 0.88rem;
+
+  font-weight: 600;
+
+  overflow: hidden;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+.ingredient-dot {
+  width: 8px;
+  height: 8px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #f59e0b;
+
+  box-shadow:
+    0 0 6px rgba(245, 158, 11, 0.4);
+}
+
+.ingredient-amount {
+  padding: 0.2rem 0.5rem;
+
+  border-radius: 6px;
+
+  background: rgba(245, 158, 11, 0.12);
+
+  color: #b45309;
+
+  font-size: 0.75rem;
+
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================
+   VITAMINS & MINERALS
+========================================= */
+
+.vitamins-section {
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.5rem;
+
+  margin: 0 0 0.75rem;
+
+  color: var(--text-primary);
+
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.vitamins-icon {
+  color: #059669;
+}
+
+.vitamins-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(180px, 1fr));
+
+  gap: 0.75rem;
+}
+
+.vitamin-item {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0.75rem 1rem;
+
+  border-radius: 12px;
+
+  background: var(--bg-elevated);
+
+  border: 1px solid var(--border-subtle);
+
+  gap: 1rem;
+}
+
+.vitamin-name {
+  color: var(--text-secondary);
+
+  font-size: 0.85rem;
+
+  font-weight: 500;
+}
+
+.vitamin-amount {
+  color: #059669;
+
+  font-size: 0.85rem;
+
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+
+/* =========================================
+   INSIGHTS
+========================================= */
+
+.insights-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fit, minmax(280px, 1fr));
+
+  gap: 1rem;
+}
+
+.insight-card {
+  padding: 1.25rem;
+
+  border-radius: 14px;
+}
+
+.nutrition-insight {
+  background: rgba(6, 182, 212, 0.04);
+
+  border: 1px solid rgba(6, 182, 212, 0.20);
+}
+
+.recommendation-insight {
+  background: rgba(16, 185, 129, 0.04);
+
+  border: 1px solid rgba(16, 185, 129, 0.20);
+}
+
+.insight-heading {
+  display: flex;
+
+  align-items: center;
+
+  gap: 0.5rem;
+
+  margin-bottom: 0.5rem;
+}
+
+.nutrition-insight .insight-heading {
+  color: #0891b2;
+}
+
+.recommendation-insight .insight-heading {
+  color: #059669;
+}
+
+.insight-heading h4 {
+  margin: 0;
+
+  color: var(--text-primary);
+
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.insight-card p {
+  margin: 0;
+
+  color: var(--text-muted);
+
+  font-size: 0.88rem;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================
+   RESPONSIVE
+========================================= */
+
+@media (max-width: 700px) {
+
+  .nutrient-display {
+    padding: 1.25rem;
+  }
+
+  .nutrient-header {
+    flex-direction: column;
+  }
+
+  .food-heading h2 {
+    font-size: 1.5rem;
+  }
+
+  .health-score-pill {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .macro-ratio-header {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .section-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+}
+
+
+@media (max-width: 480px) {
+
+  .nutrient-display {
+    padding: 1rem;
+  }
+
+  .macro-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .macro-card {
+    padding: 1rem 0.75rem;
+  }
+
+  .macro-value {
+    font-size: 1.5rem;
+  }
+
+  .calories-card .macro-value {
+    font-size: 1.6rem;
+  }
+
+  .ingredients-grid,
+  .vitamins-grid {
+    grid-template-columns: 1fr;
+  }
+}

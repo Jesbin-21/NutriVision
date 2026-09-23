@@ -1,0 +1,402 @@
+
+/* =========================================
+   Dashboard Page — Light Theme
+   ========================================= */
+
+.db-wrapper {
+  padding: 2rem 1.5rem 4rem;
+  
+}
+
+/* =========================================
+   Stats
+   ========================================= */
+
+.db-stats-grid {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  margin-top: 20px;
+}
+
+.db-stat-card {
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex: 1;
+}
+
+.db-stat-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+.db-stat-icon-ai {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
+
+.db-stat-icon-history {
+  background: rgba(6, 182, 212, 0.12);
+  color: #0891b2;
+}
+
+.db-stat-icon-user {
+  background: rgba(244, 63, 94, 0.10);
+  color: #e11d48;
+}
+
+.db-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.2rem;
+}
+
+.db-stat-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.db-stat-value-ai {
+  color: #059669;
+}
+
+/* =========================================
+   Scanner
+   ========================================= */
+
+.db-scanner-grid {
+  display: grid;
+  gap: 2rem;
+  align-items: start;
+  margin-bottom: 3rem;
+  grid-template-columns: 1fr 1.3fr;
+}
+
+.db-scanner-grid.single-col {
+  grid-template-columns: 1fr;
+  max-width: 680px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* =========================================
+   History
+   ========================================= */
+
+.db-history-card {
+  padding: 2rem;
+}
+
+.db-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.db-history-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.db-history-header h3 {
+  font-size: 1.25rem;
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.db-history-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+}
+
+/* =========================================
+   History Grid
+   ========================================= */
+
+.db-history-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.db-history-item {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px;
+
+  padding: 1.25rem;
+
+  cursor: pointer;
+  position: relative;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.db-history-item:hover {
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.10);
+  transform: translateY(-2px);
+}
+
+/* =========================================
+   History Item Header
+   ========================================= */
+
+.db-history-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  margin-bottom: 0.75rem;
+}
+
+.db-history-food-name {
+  font-size: 1rem;
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.db-history-date {
+  font-size: 0.72rem;
+  color: var(--text-subtle);
+
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+
+  margin-top: 0.2rem;
+}
+
+/* =========================================
+   Delete Button
+   ========================================= */
+
+.db-delete-button {
+  background: transparent;
+  border: none;
+
+  color: var(--text-subtle);
+
+  cursor: pointer;
+
+  padding: 4px;
+  border-radius: 6px;
+
+  transition: color 0.2s ease, background 0.2s ease;
+
+  min-width: 32px;
+  min-height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.db-delete-button:hover {
+  color: #e11d48;
+  background: rgba(244, 63, 94, 0.08);
+}
+
+/* =========================================
+   History Badges
+   ========================================= */
+
+.db-history-badges {
+  display: flex;
+  align-items: center;
+
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+
+  flex-wrap: wrap;
+}
+
+.db-calorie-badge {
+  background: rgba(249, 115, 22, 0.10);
+  color: #c2410c;
+
+  font-size: 0.78rem;
+  font-weight: 700;
+
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(249, 115, 22, 0.20);
+}
+
+.db-score-badge {
+  background: rgba(16, 185, 129, 0.10);
+  color: #059669;
+
+  font-size: 0.78rem;
+  font-weight: 600;
+
+  padding: 0.2rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid rgba(16, 185, 129, 0.20);
+}
+
+/* =========================================
+   History Meta
+   ========================================= */
+
+.db-history-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  font-size: 0.75rem;
+  color: var(--text-muted);
+
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.db-ingredients-count {
+  color: #b45309;
+  font-weight: 600;
+}
+
+/* =========================================
+   Empty History
+   ========================================= */
+
+.db-empty-history {
+  padding: 3rem 1.5rem;
+
+  text-align: center;
+
+  color: var(--text-muted);
+
+  border: 2px dashed var(--border-medium);
+  border-radius: 14px;
+  background: var(--bg-elevated);
+}
+
+.db-empty-icon {
+  color: var(--text-subtle);
+  margin-bottom: 0.75rem;
+}
+
+.db-empty-title {
+  font-size: 1rem;
+  font-weight: 700;
+
+  color: var(--text-primary);
+
+  margin: 0 0 0.25rem;
+}
+
+.db-empty-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+
+  margin: 0;
+  max-width: 380px;
+  margin-inline: auto;
+}
+
+/* =========================================
+   Tablet
+   ========================================= */
+
+@media (min-width: 641px) and (max-width: 900px) {
+  .db-scanner-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .db-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(180px, 1fr)
+    );
+  }
+
+  .db-history-grid {
+    grid-template-columns: repeat(
+      auto-fill,
+      minmax(220px, 1fr)
+    );
+  }
+}
+
+/* =========================================
+   Mobile
+   ========================================= */
+
+@media (max-width: 640px) {
+  .db-wrapper {
+    padding: 1rem 0.75rem 3rem;
+  }
+
+  .db-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .db-stat-card {
+    padding: 1rem 1.1rem;
+    gap: 1rem;
+  }
+
+  .db-scanner-grid,
+  .db-scanner-grid.single-col {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.75rem;
+    max-width: 100%;
+  }
+
+  .db-history-card {
+    padding: 1.1rem 0.9rem;
+  }
+
+  .db-history-header {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+  }
+
+  .db-history-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .db-history-grid {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+}

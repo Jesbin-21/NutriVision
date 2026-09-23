@@ -1,6 +1,7 @@
 // App.jsx - Main Application Controller
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
+import './app.css'
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 
@@ -85,10 +86,10 @@ export default function App() {
           textAlign: 'center',
           fontSize: '0.8rem',
           color: 'var(--text-subtle)',
-          background: 'rgba(10, 15, 24, 0.95)',
+          background: 'var(--bg-surface)',
         }}
       >
-        NutriVision AI • Powered by Google Gemini Vision, Express, JWT & React
+        NutriVision AI • Powered by Google Gemini Vision, Express, JWT &amp; React
       </footer>
     </div>
   );

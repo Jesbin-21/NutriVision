@@ -1,111 +1,77 @@
-// components/Navbar.jsx - App Navigation Header
+
+// components/Navbar.jsx
+
 import React from 'react';
 import Button from './Button';
-import { Sparkles, LogOut, User as UserIcon, ShieldCheck } from 'lucide-react';
+import {
+  Sparkles,
+  LogOut,
+  User as UserIcon,
+  ShieldCheck,
+} from 'lucide-react';
 
-export default function Navbar({ user, onLogout, onNavigateToLogin, activePage }) {
+import './Navbar.css';
+
+export default function Navbar({
+  user,
+  onLogout,
+  onNavigateToLogin,
+  activePage,
+}) {
   return (
-    <header
-      style={{
-        borderBottom: '1px solid var(--border-subtle)',
-        background: 'rgba(10, 15, 24, 0.85)',
-        backdropFilter: 'blur(12px)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50,
-      }}
-    >
-      <div
-        className="container"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          height: '70px',
-        }}
-      >
-        {/* Brand Logo */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem', cursor: 'pointer' }}>
-          <div
-            style={{
-              width: '42px',
-              height: '42px',
-              borderRadius: '12px',
-              background: 'linear-gradient(135deg, #10b981 0%, #06b6d4 100%)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)',
-            }}
-          >
-            <Sparkles size={22} color="#ffffff" />
+    <header className="navbar">
+      <div className="navbar-container">
+
+        {/* Brand */}
+        <div className="navbar-brand">
+
+          {/* Logo */}
+          <div className="navbar-logo">
+            <Sparkles className="navbar-logo-icon" />
           </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#ffffff' }}>
-                Nutri<span style={{ color: '#10b981' }}>Vision</span>
-              </span>
-              <span
-                style={{
-                  background: 'rgba(16, 185, 129, 0.15)',
-                  color: '#34d399',
-                  border: '1px solid rgba(16, 185, 129, 0.3)',
-                  fontSize: '0.7rem',
-                  fontWeight: 700,
-                  padding: '0.15rem 0.5rem',
-                  borderRadius: '999px',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                }}
-              >
-                Gemini Vision AI
+
+          {/* Brand text */}
+          <div className="navbar-brand-text">
+            <div className="navbar-title">
+              <span>
+                Nutri<span className="navbar-title-highlight">Vision</span>
               </span>
             </div>
-            <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: 0 }}>
+
+            {/* Hide tagline on mobile */}
+            <p className="navbar-tagline">
               Smart Food & Nutrient Scanner
             </p>
           </div>
         </div>
 
-        {/* User Info & Actions */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        {/* User / Actions */}
+        <div className="navbar-actions">
+
           {user ? (
             <>
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.65rem',
-                  background: 'rgba(255, 255, 255, 0.04)',
-                  padding: '0.4rem 0.85rem',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border-subtle)',
-                }}
-              >
-                <div
-                  style={{
-                    width: '32px',
-                    height: '32px',
-                    borderRadius: '50%',
-                    background: 'rgba(16, 185, 129, 0.2)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#34d399',
-                  }}
-                >
+              {/* User information */}
+              <div className="navbar-user">
+
+                {/* Avatar */}
+                <div className="navbar-avatar">
                   <UserIcon size={16} />
                 </div>
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600, color: '#f8fafc' }}>
+
+                {/* User text */}
+                <div className="navbar-user-text">
+                  <span className="navbar-user-name">
                     {user.name}
                   </span>
-                  <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+
+                  {/* Hide email on smaller screens */}
+                  <span className="navbar-user-email">
                     {user.email}
                   </span>
                 </div>
               </div>
 
+              {/* Logout */}
               <Button
                 id="btn-logout"
                 variant="secondary"
@@ -113,7 +79,9 @@ export default function Navbar({ user, onLogout, onNavigateToLogin, activePage }
                 onClick={onLogout}
                 icon={<LogOut size={16} />}
               >
-                Logout
+                <span className="logout-text">
+                  Logout
+                </span>
               </Button>
             </>
           ) : (
@@ -132,3 +100,4 @@ export default function Navbar({ user, onLogout, onNavigateToLogin, activePage }
     </header>
   );
 }
+

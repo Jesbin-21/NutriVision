@@ -1,0 +1,311 @@
+
+/* ================================
+   NAVBAR — Light Theme
+================================ */
+
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  width: 100%;
+
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid var(--border-subtle);
+
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 1px 8px rgba(15, 23, 42, 0.06);
+}
+
+
+/* ================================
+   CONTAINER
+================================ */
+
+.navbar-container {
+  width: 100%;
+  max-width: 1280px;
+
+  height: 68px;
+
+  margin: 0 auto;
+  padding: 0 1rem;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  box-sizing: border-box;
+}
+
+
+/* ================================
+   BRAND
+================================ */
+
+.navbar-brand {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 0.625rem;
+
+  cursor: pointer;
+}
+
+
+/* ================================
+   LOGO
+================================ */
+
+.navbar-logo {
+  width: 40px;
+  height: 40px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  background: linear-gradient(
+    135deg,
+    #10b981,
+    #06b6d4
+  );
+
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+}
+
+
+.navbar-logo-icon {
+  width: 21px;
+  height: 21px;
+
+  color: #ffffff;
+}
+
+
+/* ================================
+   BRAND TEXT
+================================ */
+
+.navbar-brand-text {
+  min-width: 0;
+}
+
+
+.navbar-title {
+  display: flex;
+  align-items: center;
+}
+
+
+.navbar-title > span {
+  font-size: 1.1rem;
+  font-weight: 800;
+
+  letter-spacing: -0.02em;
+
+  color: var(--text-primary);
+}
+
+
+.navbar-title-highlight {
+  color: #10b981;
+}
+
+
+.navbar-tagline {
+  margin: 0;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  font-size: 0.72rem;
+
+  color: var(--text-muted);
+}
+
+
+/* ================================
+   ACTIONS
+================================ */
+
+.navbar-actions {
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+
+  gap: 0.5rem;
+}
+
+
+/* ================================
+   USER
+================================ */
+
+.navbar-user {
+  display: flex;
+  align-items: center;
+
+  gap: 0.5rem;
+
+  padding: 0.375rem 0.5rem;
+
+  border: 1px solid var(--border-medium);
+  border-radius: 10px;
+
+  background: var(--bg-elevated);
+}
+
+
+.navbar-avatar {
+  width: 32px;
+  height: 32px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(16, 185, 129, 0.15);
+
+  color: #059669;
+}
+
+
+.navbar-user-text {
+  min-width: 0;
+
+  display: none;
+  flex-direction: column;
+}
+
+
+.navbar-user-name {
+  max-width: 130px;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+
+  color: var(--text-primary);
+}
+
+
+.navbar-user-email {
+  max-width: 180px;
+
+  overflow: hidden;
+
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
+  font-size: 0.72rem;
+
+  color: var(--text-muted);
+}
+
+
+/* ================================
+   LOGOUT
+================================ */
+
+.logout-text {
+  display: none;
+}
+
+
+/* ================================
+   TABLET
+================================ */
+
+@media (min-width: 640px) {
+
+  .navbar-container {
+    padding: 0 1.5rem;
+  }
+
+  .navbar-brand {
+    gap: 0.875rem;
+  }
+
+  .navbar-logo {
+    width: 42px;
+    height: 42px;
+  }
+
+  .navbar-logo-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .navbar-title > span {
+    font-size: 1.25rem;
+  }
+
+  .navbar-user {
+    gap: 0.625rem;
+
+    padding: 0.375rem 0.875rem;
+  }
+
+  .navbar-user-text {
+    display: flex;
+  }
+
+  .navbar-actions {
+    gap: 0.75rem;
+  }
+
+  .logout-text {
+    display: inline;
+  }
+}
+
+
+/* ================================
+   DESKTOP
+================================ */
+
+@media (min-width: 768px) {
+
+  .navbar-actions {
+    gap: 1rem;
+  }
+
+  .navbar-user-email {
+    display: block;
+  }
+}
+
+
+/* ================================
+   LARGE DESKTOP
+================================ */
+
+@media (min-width: 1024px) {
+
+  .navbar-container {
+    padding: 0 2rem;
+  }
+
+  .navbar-user-name {
+    max-width: 180px;
+  }
+}
