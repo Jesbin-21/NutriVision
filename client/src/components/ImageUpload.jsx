@@ -1,7 +1,14 @@
 // components/ImageUpload.jsx - Food Image Upload & Sample Selection
+
 import React, { useState, useRef } from 'react';
 import Button from './Button';
-import { UploadCloud, Image as ImageIcon, Sparkles, RefreshCw, CheckCircle2 } from 'lucide-react';
+import {
+  UploadCloud,
+  Image as ImageIcon,
+  Sparkles,
+  RefreshCw,
+  CheckCircle2,
+} from 'lucide-react';
 
 export default function ImageUpload({ onAnalyze, isAnalyzing }) {
   const [dragActive, setDragActive] = useState(false);
@@ -10,168 +17,217 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
   const [selectedPresetName, setSelectedPresetName] = useState('');
   const fileInputRef = useRef(null);
 
-  // Ready-to-test sample food presets with delicious high-quality imagery
   const samplePresets = [
     {
       id: 'avocado-toast',
       name: 'Avocado Toast & Egg',
       caloriesEst: '~380 kcal',
-      imageUrl: 'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=600&q=80',
+      imageUrl:
+        'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=600&q=80',
     },
     {
       id: 'salmon-bowl',
       name: 'Grilled Salmon Bowl',
       caloriesEst: '~520 kcal',
-      imageUrl: 'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=600&q=80',
+      imageUrl:
+        'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=600&q=80',
     },
     {
       id: 'chicken-salad',
       name: 'Mediterranean Chicken Salad',
       caloriesEst: '~410 kcal',
-      imageUrl: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80',
+      imageUrl:
+        'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80',
     },
     {
       id: 'berry-oatmeal',
       name: 'Superfood Berry Oatmeal',
       caloriesEst: '~310 kcal',
-      imageUrl: 'https://images.unsplash.com/photo-1517673400267-0251440c45dc?auto=format&fit=crop&w=600&q=80',
+      imageUrl:
+        'https://images.unsplash.com/photo-1517673400267-0251440c45dc?auto=format&fit=crop&w=600&q=80',
     },
   ];
 
-  // Handle file selection from local filesystem
+  // Compress image to <= 150 KB
+  const compressImage = (file) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const reader = new FileReader();
+
+      reader.onload = (e) => {
+        img.src = e.target.result;
+      };
+
+      reader.onerror = () => {
+        reject(new Error('Failed to read image'));
+      };
+
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+
+        const maxSize = 800;
+
+        let width = img.width;
+        let height = img.height;
+
+        // Resize large images
+        if (width > height) {
+          if (width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          }
+        } else {
+          if (height > maxSize) {
+            width = (width * maxSize) / height;
+            height = maxSize;
+          }
+        }
+
+        canvas.width = Math.round(width);
+        canvas.height = Math.round(height);
+
+        const ctx = canvas.getContext('2d');
+
+        if (!ctx) {
+          reject(new Error('Canvas not supported'));
+          return;
+        }
+
+        ctx.drawImage(
+          img,
+          0,
+          0,
+          canvas.width,
+          canvas.height
+        );
+
+        const compress = (quality) => {
+          canvas.toBlob(
+            (blob) => {
+              if (!blob) {
+                reject(new Error('Image compression failed'));
+                return;
+              }
+
+              const sizeKB = blob.size / 1024;
+
+              console.log(
+                `📦 Compression attempt: ${sizeKB.toFixed(1)} KB | quality: ${quality.toFixed(1)}`
+              );
+
+              // Stop when image is <= 150 KB
+              if (sizeKB <= 150) {
+                const compressedFile = new File(
+                  [blob],
+                  'food.webp',
+                  {
+                    type: 'image/webp',
+                  }
+                );
+
+                resolve(compressedFile);
+                return;
+              }
+
+              // Don't go below quality 0.1
+              if (quality <= 0.1) {
+                const compressedFile = new File(
+                  [blob],
+                  'food.webp',
+                  {
+                    type: 'image/webp',
+                  }
+                );
+
+                resolve(compressedFile);
+                return;
+              }
+
+              compress(quality - 0.1);
+            },
+            'image/webp',
+            quality
+          );
+        };
+
+        compress(0.8);
+      };
+
+      img.onerror = () => {
+        reject(new Error('Failed to load image'));
+      };
+
+      reader.readAsDataURL(file);
+    });
+  };
+
+  // Process uploaded image
+  const processFile = async (file) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Please upload an image file (JPG, PNG, WEBP).');
+      return;
+    }
+
+    try {
+      console.log(
+        '📷 Original image:',
+        (file.size / 1024).toFixed(1),
+        'KB'
+      );
+
+      // Compress BEFORE saving it into state
+      const compressedFile = await compressImage(file);
+
+      console.log(
+        '✅ Final compressed image:',
+        (compressedFile.size / 1024).toFixed(1),
+        'KB'
+      );
+
+      // Safety check
+      if (compressedFile.size > 150 * 1024) {
+        console.warn(
+          '⚠️ Image is still larger than 150 KB:',
+          (compressedFile.size / 1024).toFixed(1),
+          'KB'
+        );
+      }
+
+      // IMPORTANT:
+      // selectedFile now contains ONLY the compressed file
+      setSelectedFile(compressedFile);
+
+      // This is a local upload, not a preset
+      setSelectedPresetName('');
+
+      // Preview the compressed image
+      const previewReader = new FileReader();
+
+      previewReader.onload = () => {
+        setPreviewUrl(previewReader.result);
+      };
+
+      previewReader.readAsDataURL(compressedFile);
+    } catch (error) {
+      console.error('❌ Compression error:', error);
+      alert('Failed to compress image. Please try another image.');
+    }
+  };
+
+  // File input
   const handleFileChange = (e) => {
     const file = e.target.files && e.target.files[0];
+
     if (file) {
       processFile(file);
     }
   };
 
-  const compressImage = (file) => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const reader = new FileReader();
-
-    reader.onload = (e) => {
-      img.src = e.target.result;
-    };
-
-    reader.onerror = () => reject(new Error('Failed to read image'));
-
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-
-      // Maximum image dimension
-      const maxSize = 800;
-
-      let width = img.width;
-      let height = img.height;
-
-      if (width > height) {
-        if (width > maxSize) {
-          height = (height * maxSize) / width;
-          width = maxSize;
-        }
-      } else {
-        if (height > maxSize) {
-          width = (width * maxSize) / height;
-          height = maxSize;
-        }
-      }
-
-      canvas.width = width;
-      canvas.height = height;
-
-      const ctx = canvas.getContext('2d');
-
-      if (!ctx) {
-        reject(new Error('Canvas not supported'));
-        return;
-      }
-
-      ctx.drawImage(img, 0, 0, width, height);
-
-      // Try different qualities until image is below 150 KB
-      const compress = (quality) => {
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) {
-              reject(new Error('Image compression failed'));
-              return;
-            }
-
-            const sizeKB = blob.size / 1024;
-
-            if (sizeKB <= 150 || quality <= 0.2) {
-              const compressedFile = new File(
-                [blob],
-                'food.webp',
-                {
-                  type: 'image/webp',
-                }
-              );
-
-              resolve(compressedFile);
-              return;
-            }
-
-            compress(quality - 0.1);
-          },
-          'image/webp',
-          quality
-        );
-      };
-
-      compress(0.7);
-    };
-
-    img.onerror = () => reject(new Error('Failed to load image'));
-
-    reader.readAsDataURL(file);
-  });
-};
-
- const processFile = async (file) => {
-  if (!file.type.startsWith('image/')) {
-    alert('Please upload an image file (JPG, PNG, WEBP).');
-    return;
-  }
-
-  try {
-    console.log(
-      '📷 Original image:',
-      (file.size / 1024).toFixed(1),
-      'KB'
-    );
-
-    const compressedFile = await compressImage(file);
-
-    console.log(
-      '📦 Compressed image:',
-      (compressedFile.size / 1024).toFixed(1),
-      'KB'
-    );
-
-    setSelectedFile(compressedFile);
-    setSelectedPresetName('');
-
-    const reader = new FileReader();
-
-    reader.onload = () => {
-      setPreviewUrl(reader.result);
-    };
-
-    reader.readAsDataURL(compressedFile);
-
-  } catch (error) {
-    console.error('❌ Compression error:', error);
-    alert('Failed to compress image. Please try another image.');
-  }
-};
-
-  // Drag and drop handlers
+  // Drag handlers
   const handleDrag = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
     if (e.type === 'dragenter' || e.type === 'dragover') {
       setDragActive(true);
     } else if (e.type === 'dragleave') {
@@ -179,49 +235,103 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
     }
   };
 
+  // Drop handler
   const handleDrop = (e) => {
     e.preventDefault();
     e.stopPropagation();
+
     setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+
+    if (
+      e.dataTransfer.files &&
+      e.dataTransfer.files[0]
+    ) {
       processFile(e.dataTransfer.files[0]);
     }
   };
 
-  // Handle clicking a sample preset
-  const handleSelectPreset = async (preset) => {
+  // Select sample preset
+  const handleSelectPreset = (preset) => {
     setSelectedPresetName(preset.name);
     setPreviewUrl(preset.imageUrl);
-    setSelectedFile(null); // Indicates using preset image URL
+
+    // Preset doesn't use a local file
+    setSelectedFile(null);
   };
 
-  // Trigger analysis
+  // Submit analysis
   const handleSubmit = () => {
-    if (!previewUrl) return;
-    onAnalyze({
-      file: selectedFile,
-      presetName: selectedPresetName,
-      imageUrl: previewUrl,
-    });
+    if (!previewUrl) {
+      return;
+    }
+
+    // Local uploaded image
+    if (selectedFile) {
+      console.log(
+        '🚀 Sending compressed file:',
+        (selectedFile.size / 1024).toFixed(1),
+        'KB'
+      );
+
+      onAnalyze({
+        file: selectedFile,
+        presetName: '',
+        imageUrl: '',
+      });
+
+      return;
+    }
+
+    // Preset image
+    if (selectedPresetName) {
+      console.log(
+        '🚀 Sending preset:',
+        selectedPresetName
+      );
+
+      onAnalyze({
+        file: null,
+        presetName: selectedPresetName,
+        imageUrl: previewUrl,
+      });
+    }
   };
 
+  // Reset
   const handleReset = () => {
     setSelectedFile(null);
     setPreviewUrl('');
     setSelectedPresetName('');
+
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
   };
 
   return (
-    <div className="glass-card" style={{ padding: '2rem' }}>
+    <div
+      className="glass-card"
+      style={{ padding: '2rem' }}
+    >
       <div style={{ marginBottom: '1.5rem' }}>
-        <h2 style={{ fontSize: '1.5rem', marginBottom: '0.35rem' }}>
+        <h2
+          style={{
+            fontSize: '1.5rem',
+            marginBottom: '0.35rem',
+          }}
+        >
           Upload Food Image
         </h2>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.92rem' }}>
-          Take a photo or upload an image of your meal to calculate calories and nutrients with Gemini Vision.
+
+        <p
+          style={{
+            color: 'var(--text-muted)',
+            fontSize: '0.92rem',
+          }}
+        >
+          Take a photo or upload an image of your meal
+          to calculate calories and nutrients with Gemini
+          Vision.
         </p>
       </div>
 
@@ -235,7 +345,7 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
         onChange={handleFileChange}
       />
 
-      {/* Dropzone Area or Preview */}
+      {/* Upload area */}
       {!previewUrl ? (
         <div
           id="dropzone-area"
@@ -243,7 +353,10 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
-          onClick={() => fileInputRef.current && fileInputRef.current.click()}
+          onClick={() =>
+            fileInputRef.current &&
+            fileInputRef.current.click()
+          }
           style={{
             border: dragActive
               ? '2px dashed #10b981'
@@ -274,10 +387,22 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
           >
             <UploadCloud size={32} />
           </div>
-          <h3 style={{ fontSize: '1.15rem', marginBottom: '0.4rem' }}>
+
+          <h3
+            style={{
+              fontSize: '1.15rem',
+              marginBottom: '0.4rem',
+            }}
+          >
             Click or drag & drop food image here
           </h3>
-          <p style={{ color: 'var(--text-subtle)', fontSize: '0.85rem' }}>
+
+          <p
+            style={{
+              color: 'var(--text-subtle)',
+              fontSize: '0.85rem',
+            }}
+          >
             Supports JPG, PNG, WEBP (up to 10MB)
           </p>
         </div>
@@ -307,6 +432,7 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
                 display: 'block',
               }}
             />
+
             {selectedPresetName && (
               <div
                 style={{
@@ -320,13 +446,15 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
                   fontSize: '0.8rem',
                   fontWeight: 600,
                   color: '#34d399',
-                  border: '1px solid rgba(16, 185, 129, 0.4)',
+                  border:
+                    '1px solid rgba(16, 185, 129, 0.4)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.35rem',
                 }}
               >
-                <CheckCircle2 size={14} /> Preset: {selectedPresetName}
+                <CheckCircle2 size={14} />
+                Preset: {selectedPresetName}
               </div>
             )}
           </div>
@@ -350,6 +478,7 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
             >
               Analyze Nutrients with Gemini Vision
             </Button>
+
             <Button
               id="btn-reset-image"
               variant="secondary"
@@ -363,7 +492,6 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
           </div>
         </div>
       )}
-
     </div>
   );
 }
