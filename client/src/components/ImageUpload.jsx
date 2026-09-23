@@ -130,19 +130,43 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
   });
 };
 
-  const processFile = (file) => {
-    if (!file.type.startsWith('image/')) {
-      alert('Please upload an image file (JPG, PNG, WEBP).');
-      return;
-    }
-    setSelectedFile(file);
+ const processFile = async (file) => {
+  if (!file.type.startsWith('image/')) {
+    alert('Please upload an image file (JPG, PNG, WEBP).');
+    return;
+  }
+
+  try {
+    console.log(
+      '📷 Original image:',
+      (file.size / 1024).toFixed(1),
+      'KB'
+    );
+
+    const compressedFile = await compressImage(file);
+
+    console.log(
+      '📦 Compressed image:',
+      (compressedFile.size / 1024).toFixed(1),
+      'KB'
+    );
+
+    setSelectedFile(compressedFile);
     setSelectedPresetName('');
+
     const reader = new FileReader();
+
     reader.onload = () => {
       setPreviewUrl(reader.result);
     };
-    reader.readAsDataURL(file);
-  };
+
+    reader.readAsDataURL(compressedFile);
+
+  } catch (error) {
+    console.error('❌ Compression error:', error);
+    alert('Failed to compress image. Please try another image.');
+  }
+};
 
   // Drag and drop handlers
   const handleDrag = (e) => {
