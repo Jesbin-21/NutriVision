@@ -1,7 +1,7 @@
 // App.jsx - Main Application Controller
 import React, { useState, useEffect } from 'react';
 import Navbar from './components/Navbar';
-import './app.css'
+import './App.css'
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 
