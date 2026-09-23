@@ -1,5 +1,7 @@
+````js
+// controllers/foodController.js
+// Analyzes food images with Gemini Vision and manages scan history
 
-// controllers/foodController.js - Analyzes food image with Gemini Vision and manages scan history
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const FoodLog = require('../models/FoodLog');
 const { getIsMongoConnected } = require('../config/db');
@@ -7,66 +9,67 @@ const { getIsMongoConnected } = require('../config/db');
 // In-memory fallback history if MongoDB is not active
 const inMemoryFoodLogs = [];
 
-// Helper to wait before retrying Gemini
+// ---------------------------------------------------------
+// Helper: wait
+// ---------------------------------------------------------
 const sleep = (ms) => {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
 };
 
-// Helper to sanitize Gemini's response into clean JSON
+// ---------------------------------------------------------
+// Helper: clean Gemini JSON response
+// ---------------------------------------------------------
 const parseGeminiJson = (text) => {
   try {
-    // Remove code block markdown like ```json ... ``` if present
-    const cleaned = text
-      .replace(/```json/gi, '')
-      .replace(/```/g, '')
+    if (!text) {
+      return null;
+    }
+
+    let cleaned = text.trim();
+
+    // Remove markdown code blocks if Gemini adds them
+    cleaned = cleaned
+      .replace(/^```json\s*/i, '')
+      .replace(/^```\s*/i, '')
+      .replace(/\s*```$/i, '')
       .trim();
+
+    // Find JSON object if Gemini added extra text
+    const firstBrace = cleaned.indexOf('{');
+    const lastBrace = cleaned.lastIndexOf('}');
+
+    if (firstBrace !== -1 && lastBrace !== -1) {
+      cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+    }
 
     return JSON.parse(cleaned);
   } catch (err) {
-    console.error('Error parsing JSON from Gemini response:', err.message);
+    console.error(
+      '❌ Error parsing JSON from Gemini:',
+      err.message
+    );
+
     return null;
   }
 };
 
-// Retry Gemini request when the API is temporarily busy
-const generateWithRetry = async (model, content, retries = 3) => {
-  let lastError = null;
+// ---------------------------------------------------------
+// Helper: determine whether Gemini error is temporary
+// ---------------------------------------------------------
+const isTemporaryGeminiError = (error) => {
+  const message = error?.message || '';
 
-  for (let attempt = 1; attempt <= retries; attempt++) {
-    try {
-      console.log(`🤖 Gemini request attempt ${attempt}/${retries}`);
-
-      const result = await model.generateContent(content);
-
-      return result;
-    } catch (error) {
-      lastError = error;
-
-      const errorMessage = error?.message || '';
-
-      const isRetryable =
-        errorMessage.includes('503') ||
-        errorMessage.includes('429') ||
-        errorMessage.includes('Service Unavailable') ||
-        errorMessage.includes('high demand') ||
-        errorMessage.includes('overloaded') ||
-        errorMessage.includes('temporarily unavailable');
-
-      if (!isRetryable || attempt === retries) {
-        throw error;
-      }
-
-      const waitTime = attempt * 2000;
-
-      console.warn(
-        `⚠️ Gemini temporarily unavailable. Retrying in ${waitTime / 1000}s...`
-      );
-
-      await sleep(waitTime);
-    }
-  }
-
-  throw lastError;
+  return (
+    message.includes('503') ||
+    message.includes('429') ||
+    message.includes('Service Unavailable') ||
+    message.includes('high demand') ||
+    message.includes('overloaded') ||
+    message.includes('temporarily unavailable') ||
+    message.includes('RESOURCE_EXHAUSTED')
+  );
 };
 
 // @desc    Analyze uploaded food image with Gemini Vision
@@ -79,113 +82,193 @@ exports.analyzeFoodImage = async (req, res) => {
     let mimeType = 'image/jpeg';
     let base64Preview = '';
 
-    // 1. Parse image input from multipart file or base64/URL
+    // =====================================================
+    // 1. GET IMAGE
+    // =====================================================
+
+    // Multipart upload
     if (req.file) {
       imageBuffer = req.file.buffer;
-      mimeType = req.file.mimetype || 'image/jpeg';
 
-      base64Preview = `data:${mimeType};base64,${imageBuffer.toString(
-        'base64'
-      )}`;
-    } else if (req.body.imageBase64) {
-      const inputStr = req.body.imageBase64.trim();
+      mimeType =
+        req.file.mimetype || 'image/jpeg';
 
+      base64Preview =
+        `data:${mimeType};base64,` +
+        imageBuffer.toString('base64');
+    }
+
+    // Base64 / URL image
+    else if (req.body.imageBase64) {
+      const inputStr =
+        req.body.imageBase64.trim();
+
+      // Remote URL
       if (
         inputStr.startsWith('http://') ||
         inputStr.startsWith('https://')
       ) {
-        // Fetch remote preset image
         const imgRes = await fetch(inputStr);
 
         if (!imgRes.ok) {
           return res.status(400).json({
             success: false,
-            message: 'Could not download the provided image.',
+            message:
+              'Could not download the provided image.',
           });
         }
 
-        const arrayBuf = await imgRes.arrayBuffer();
+        const arrayBuf =
+          await imgRes.arrayBuffer();
 
         imageBuffer = Buffer.from(arrayBuf);
-        mimeType = imgRes.headers.get('content-type') || 'image/jpeg';
 
-        base64Preview = `data:${mimeType};base64,${imageBuffer.toString(
-          'base64'
-        )}`;
-      } else {
-        const matches = inputStr.match(
-          /^data:([A-Za-z-+\/]+);base64,(.+)$/
-        );
+        mimeType =
+          imgRes.headers.get('content-type') ||
+          'image/jpeg';
 
-        if (matches && matches.length === 3) {
+        base64Preview =
+          `data:${mimeType};base64,` +
+          imageBuffer.toString('base64');
+      }
+
+      // Data URL
+      else {
+        const matches =
+          inputStr.match(
+            /^data:([A-Za-z-+\/]+);base64,(.+)$/
+          );
+
+        if (
+          matches &&
+          matches.length === 3
+        ) {
           mimeType = matches[1];
-          imageBuffer = Buffer.from(matches[2], 'base64');
+
+          imageBuffer =
+            Buffer.from(
+              matches[2],
+              'base64'
+            );
+
           base64Preview = inputStr;
-        } else {
-          imageBuffer = Buffer.from(inputStr, 'base64');
-          base64Preview = `data:image/jpeg;base64,${inputStr}`;
+        }
+
+        // Raw base64
+        else {
+          imageBuffer =
+            Buffer.from(
+              inputStr,
+              'base64'
+            );
+
+          base64Preview =
+            `data:image/jpeg;base64,${inputStr}`;
         }
       }
-    } else {
+    }
+
+    // No image
+    else {
       return res.status(400).json({
         success: false,
-        message: 'No image provided. Please upload a food image file.',
+        message:
+          'No image provided. Please upload a food image file.',
       });
     }
 
-    // Make sure image exists
-    if (!imageBuffer || imageBuffer.length === 0) {
+    // =====================================================
+    // 2. VALIDATE IMAGE
+    // =====================================================
+
+    if (
+      !imageBuffer ||
+      imageBuffer.length === 0
+    ) {
       return res.status(400).json({
         success: false,
-        message: 'The uploaded image is empty or invalid.',
+        message:
+          'The uploaded image is empty or invalid.',
       });
     }
 
-    // 2. Check Gemini API key
-    const apiKey = process.env.GEMINI_API_KEY;
+    console.log(
+      `📷 Image received: ${(imageBuffer.length / 1024 / 1024).toFixed(2)} MB`
+    );
+
+    // =====================================================
+    // 3. GEMINI API KEY
+    // =====================================================
+
+    const apiKey =
+      process.env.GEMINI_API_KEY;
 
     if (
       !apiKey ||
-      apiKey === 'YOUR_GEMINI_API_KEY_HERE' ||
+      apiKey ===
+        'YOUR_GEMINI_API_KEY_HERE' ||
       apiKey.trim().length < 10
     ) {
       return res.status(500).json({
         success: false,
-        message: 'Google Gemini API key is missing or invalid in backend/.env.',
+        message:
+          'Google Gemini API key is missing or invalid in backend/.env.',
       });
     }
 
-    console.log('🤖 Sending image to Google Gemini Vision...');
+    // =====================================================
+    // 4. INITIALIZE GEMINI
+    // =====================================================
 
-    const genAI = new GoogleGenerativeAI(apiKey);
+    const genAI =
+      new GoogleGenerativeAI(apiKey);
 
-    // 3. Prompt
-    const prompt = `You are an expert food scientist and nutrition analyst.
+    /*
+      Using one fast model instead of trying
+      multiple models.
 
-Analyze the food in this image carefully.
+      This prevents the previous situation where
+      several models could each retry and make the
+      request take 40-60+ seconds.
+    */
 
-Identify the most likely food or dish using visual clues such as:
-- ingredients
-- textures
-- colors
+    const model =
+      genAI.getGenerativeModel({
+        model: 'gemini-2.5-flash-lite',
+      });
+
+    console.log(
+      '🤖 Sending image to Gemini Vision...'
+    );
+
+    // =====================================================
+    // 5. PROMPT
+    // =====================================================
+
+    const prompt = `
+Analyze this food image and estimate its nutritional information.
+
+Identify the most likely food or dish using:
+- visible ingredients
+- texture
+- color
 - cooking method
 - presentation
-- portion size
+- estimated portion size
 
-Estimate nutrition for the visible serving.
+Important:
+Nutrition values from an image are estimates.
+Do not claim exact values when they cannot be determined visually.
 
-IMPORTANT:
-Nutrition values from an image are estimates. Do not pretend to know exact quantities when they cannot be determined visually.
+Return ONLY valid JSON.
+Do not return markdown.
+Do not return \`\`\`json.
+Do not include any explanation outside the JSON.
 
-Return ONLY valid raw JSON.
-Do NOT return markdown.
-Do NOT return \`\`\`json.
-Do NOT include explanations outside the JSON.
-
-Required JSON structure:
+Use exactly this structure:
 
 {
-  "foodName": "Specific identified food or dish",
+  "foodName": "Specific food or dish name",
   "servingSize": "Estimated serving size",
   "calories": 480,
   "macros": {
@@ -228,170 +311,251 @@ Required JSON structure:
     "Whole Food"
   ],
   "healthScore": 88,
-  "healthSummary": "2-3 sentences explaining the nutritional benefits, glycemic impact and satiety.",
+  "healthSummary": "2-3 sentences explaining nutritional benefits, glycemic impact and satiety.",
   "recommendation": "Practical evidence-based advice for improving or balancing this meal."
 }
 
 Rules:
-- calories must be an integer.
-- macros must contain numeric gram values.
+- calories must be a number.
+- All macro values must be numbers in grams.
 - healthScore must be an integer from 1 to 100.
 - ingredients must be an array.
 - dietaryTags must be an array.
 - vitaminsAndMinerals must be an array.
 - Use realistic estimates.
-- If an ingredient or nutrient cannot be confidently determined, make a reasonable estimate rather than inventing false precision.
-- Return ONLY the JSON object.`;
+- Do not invent ingredients that cannot reasonably be identified.
+- Return ONLY the JSON object.
+`;
 
-    // 4. Prepare image for Gemini
+    // =====================================================
+    // 6. IMAGE PART
+    // =====================================================
+
     const imagePart = {
       inlineData: {
-        data: imageBuffer.toString('base64'),
+        data:
+          imageBuffer.toString('base64'),
+
         mimeType: mimeType,
       },
     };
 
-    // 5. Gemini models
-    // Primary model first, then lighter/fallback models.
-    const candidateModels = [
-      'gemini-2.5-flash',
-      'gemini-2.5-flash-lite',
-      'gemini-flash-latest',
-    ];
+    // =====================================================
+    // 7. GEMINI REQUEST
+    // =====================================================
 
-    let parsedData = null;
-    let lastError = null;
+    let result;
 
-    // 6. Try each model
-    for (const modelName of candidateModels) {
-      try {
-        console.log(`🔎 Trying Gemini model: ${modelName}`);
+    try {
+      const startTime = Date.now();
 
-        const model = genAI.getGenerativeModel({
-          model: modelName,
-        });
+      result =
+        await model.generateContent([
+          prompt,
+          imagePart,
+        ]);
 
-        // Retry temporary 503/429 errors
-        const result = await generateWithRetry(
-          model,
-          [prompt, imagePart],
-          3
+      console.log(
+        `⚡ Gemini response received in ${
+          Date.now() - startTime
+        }ms`
+      );
+    } catch (error) {
+      console.warn(
+        '⚠️ First Gemini request failed:',
+        error.message
+      );
+
+      // Only retry temporary errors
+      if (
+        isTemporaryGeminiError(error)
+      ) {
+        console.log(
+          '🔄 Gemini temporarily unavailable. Retrying once in 1.5 seconds...'
         );
 
-        const responseText = result.response.text();
+        await sleep(1500);
 
-        console.log(`📥 Gemini response received from ${modelName}`);
+        try {
+          const retryStart =
+            Date.now();
 
-        const parsed = parseGeminiJson(responseText);
-
-        if (
-          parsed &&
-          parsed.foodName &&
-          parsed.calories !== undefined
-        ) {
-          parsedData = parsed;
+          result =
+            await model.generateContent([
+              prompt,
+              imagePart,
+            ]);
 
           console.log(
-            `✅ Successfully analyzed with ${modelName}:`,
-            parsedData.foodName
+            `✅ Gemini retry succeeded in ${
+              Date.now() - retryStart
+            }ms`
+          );
+        } catch (retryError) {
+          console.error(
+            '❌ Gemini retry failed:',
+            retryError.message
           );
 
-          break;
+          const retryMessage =
+            retryError?.message || '';
+
+          if (
+            retryMessage.includes('429') ||
+            retryMessage.includes(
+              'RESOURCE_EXHAUSTED'
+            )
+          ) {
+            return res.status(429).json({
+              success: false,
+              message:
+                'Gemini API usage limit has been reached. Please try again later.',
+            });
+          }
+
+          if (
+            retryMessage.includes('503') ||
+            retryMessage.includes(
+              'Service Unavailable'
+            ) ||
+            retryMessage.includes(
+              'high demand'
+            ) ||
+            retryMessage.includes(
+              'overloaded'
+            )
+          ) {
+            return res.status(503).json({
+              success: false,
+              message:
+                'Gemini is temporarily busy. Please try again in a few seconds.',
+            });
+          }
+
+          throw retryError;
         }
-
-        console.warn(
-          `⚠️ ${modelName} returned invalid nutrition JSON.`
-        );
-      } catch (err) {
-        console.warn(
-          `❌ Model ${modelName} failed:`,
-          err.message
-        );
-
-        lastError = err;
+      } else {
+        throw error;
       }
     }
 
-    // 7. If all models failed
-    if (!parsedData) {
-      const errorMessage = lastError?.message || '';
+    // =====================================================
+    // 8. READ GEMINI RESPONSE
+    // =====================================================
 
-      if (
-        errorMessage.includes('503') ||
-        errorMessage.includes('Service Unavailable') ||
-        errorMessage.includes('high demand') ||
-        errorMessage.includes('overloaded')
-      ) {
-        throw new Error(
-          'Gemini is temporarily busy. Please try analyzing the image again in a few seconds.'
-        );
-      }
+    const responseText =
+      result.response.text();
 
-      if (
-        errorMessage.includes('429') ||
-        errorMessage.includes('quota') ||
-        errorMessage.includes('RESOURCE_EXHAUSTED')
-      ) {
-        throw new Error(
-          'Gemini API usage limit has been reached. Please try again later.'
-        );
-      }
+    console.log(
+      '📥 Gemini response received.'
+    );
+
+    const parsedData =
+      parseGeminiJson(responseText);
+
+    if (
+      !parsedData ||
+      !parsedData.foodName
+    ) {
+      console.error(
+        '❌ Invalid Gemini JSON:',
+        responseText
+      );
 
       throw new Error(
-        lastError
-          ? `Gemini Vision failed to analyze the image: ${lastError.message}`
-          : 'Could not extract valid nutritional details from the image.'
+        'Gemini returned invalid food analysis data.'
       );
     }
 
-    // 8. Normalize ingredients array
+    console.log(
+      '✅ Food identified:',
+      parsedData.foodName
+    );
+
+    // =====================================================
+    // 9. NORMALIZE INGREDIENTS
+    // =====================================================
+
     let normalizedIngredients = [];
 
-    if (Array.isArray(parsedData.ingredients)) {
-      normalizedIngredients = parsedData.ingredients.map((item) => {
-        if (typeof item === 'string') {
-          return {
-            name: item,
-            amount: '',
-          };
-        }
+    if (
+      Array.isArray(
+        parsedData.ingredients
+      )
+    ) {
+      normalizedIngredients =
+        parsedData.ingredients.map(
+          (item) => {
+            if (
+              typeof item === 'string'
+            ) {
+              return {
+                name: item,
+                amount: '',
+              };
+            }
 
-        return {
-          name: item.name || 'Ingredient',
-          amount: item.amount || '',
-        };
-      });
+            return {
+              name:
+                item.name ||
+                'Ingredient',
+
+              amount:
+                item.amount || '',
+            };
+          }
+        );
     }
 
-    // 9. Normalize nutrition data
+    // =====================================================
+    // 10. NORMALIZE NUTRITION DATA
+    // =====================================================
+
     const nutritionData = {
-      foodName: parsedData.foodName || 'Analyzed Food',
+      foodName:
+        parsedData.foodName ||
+        'Analyzed Food',
 
       servingSize:
-        parsedData.servingSize || '1 serving',
+        parsedData.servingSize ||
+        '1 serving',
 
       calories:
-        Number(parsedData.calories) || 0,
+        Number(
+          parsedData.calories
+        ) || 0,
 
       macros: {
         protein:
-          Number(parsedData.macros?.protein) || 0,
+          Number(
+            parsedData.macros?.protein
+          ) || 0,
 
         carbs:
-          Number(parsedData.macros?.carbs) || 0,
+          Number(
+            parsedData.macros?.carbs
+          ) || 0,
 
         fats:
-          Number(parsedData.macros?.fats) || 0,
+          Number(
+            parsedData.macros?.fats
+          ) || 0,
 
         fiber:
-          Number(parsedData.macros?.fiber) || 0,
+          Number(
+            parsedData.macros?.fiber
+          ) || 0,
 
         sugar:
-          Number(parsedData.macros?.sugar) || 0,
+          Number(
+            parsedData.macros?.sugar
+          ) || 0,
       },
 
       vitaminsAndMinerals:
-        Array.isArray(parsedData.vitaminsAndMinerals)
+        Array.isArray(
+          parsedData.vitaminsAndMinerals
+        )
           ? parsedData.vitaminsAndMinerals
           : [],
 
@@ -399,60 +563,91 @@ Rules:
         normalizedIngredients,
 
       dietaryTags:
-        Array.isArray(parsedData.dietaryTags)
+        Array.isArray(
+          parsedData.dietaryTags
+        )
           ? parsedData.dietaryTags
           : [],
 
       healthScore:
-        Number(parsedData.healthScore) || 80,
+        Number(
+          parsedData.healthScore
+        ) || 80,
 
       healthSummary:
-        parsedData.healthSummary || '',
+        parsedData.healthSummary ||
+        '',
 
       recommendation:
-        parsedData.recommendation || '',
+        parsedData.recommendation ||
+        '',
     };
 
-    // 10. Save scan
+    // =====================================================
+    // 11. CREATE LOG
+    // =====================================================
+
     const savedLog = {
-      id: 'log_' + Date.now(),
+      id:
+        'log_' +
+        Date.now(),
 
       userId: userId,
 
       ...nutritionData,
 
+      // Don't store huge images in MongoDB
       imageUrl:
-        base64Preview.length < 300000
+        base64Preview.length <
+        300000
           ? base64Preview
           : '',
 
-      createdAt: new Date(),
+      createdAt:
+        new Date(),
     };
 
-    // 11. Save to MongoDB or memory
-    if (getIsMongoConnected()) {
-      try {
-        const dbLog = await FoodLog.create({
-          userId: userId,
-          ...nutritionData,
-          imageUrl: savedLog.imageUrl,
-        });
+    // =====================================================
+    // 12. SAVE TO MONGODB
+    // =====================================================
 
-        savedLog._id = dbLog._id;
+    if (
+      getIsMongoConnected()
+    ) {
+      try {
+        const dbLog =
+          await FoodLog.create({
+            userId: userId,
+
+            ...nutritionData,
+
+            imageUrl:
+              savedLog.imageUrl,
+          });
+
+        savedLog._id =
+          dbLog._id;
       } catch (dbErr) {
         console.warn(
-          'Could not save to MongoDB, saving in memory:',
+          '⚠️ Could not save to MongoDB. Saving in memory:',
           dbErr.message
         );
 
-        inMemoryFoodLogs.unshift(savedLog);
+        inMemoryFoodLogs.unshift(
+          savedLog
+        );
       }
     } else {
-      inMemoryFoodLogs.unshift(savedLog);
+      inMemoryFoodLogs.unshift(
+        savedLog
+      );
     }
 
-    // 12. Send response
-    res.status(200).json({
+    // =====================================================
+    // 13. SEND RESULT
+    // =====================================================
+
+    return res.status(200).json({
       success: true,
 
       usedAi: true,
@@ -463,87 +658,173 @@ Rules:
       data: savedLog,
     });
   } catch (error) {
-    console.error('Food analysis error:', error);
+    console.error(
+      '❌ Food analysis error:',
+      error
+    );
 
-    res.status(500).json({
+    const message =
+      error?.message || '';
+
+    // API quota
+    if (
+      message.includes('429') ||
+      message.includes(
+        'RESOURCE_EXHAUSTED'
+      ) ||
+      message.includes('quota')
+    ) {
+      return res.status(429).json({
+        success: false,
+        message:
+          'Gemini API usage limit has been reached. Please try again later.',
+      });
+    }
+
+    // Temporary Google server problem
+    if (
+      message.includes('503') ||
+      message.includes(
+        'Service Unavailable'
+      ) ||
+      message.includes(
+        'high demand'
+      ) ||
+      message.includes(
+        'overloaded'
+      )
+    ) {
+      return res.status(503).json({
+        success: false,
+        message:
+          'Gemini is temporarily busy. Please try again in a few seconds.',
+      });
+    }
+
+    return res.status(500).json({
       success: false,
       message:
-        error.message ||
+        message ||
         'Failed to analyze food image.',
     });
   }
 };
 
+// =========================================================
+// GET FOOD HISTORY
+// =========================================================
+
 // @desc    Get user's past food scans history
 // @route   GET /api/food/history
-exports.getFoodHistory = async (req, res) => {
+exports.getFoodHistory = async (
+  req,
+  res
+) => {
   try {
-    const userId = req.user.id;
+    const userId =
+      req.user.id;
 
-    if (getIsMongoConnected()) {
-      const history = await FoodLog.find({ userId })
-        .sort({ createdAt: -1 })
-        .limit(20);
+    if (
+      getIsMongoConnected()
+    ) {
+      const history =
+        await FoodLog.find({
+          userId,
+        })
+          .sort({
+            createdAt: -1,
+          })
+          .limit(20);
 
       return res.status(200).json({
         success: true,
-        count: history.length,
+        count:
+          history.length,
         history,
       });
-    } else {
-      const userHistory = inMemoryFoodLogs.filter(
+    }
+
+    const userHistory =
+      inMemoryFoodLogs.filter(
         (log) =>
           log.userId === userId ||
-          log.userId === 'anonymous'
+          log.userId ===
+            'anonymous'
       );
 
-      return res.status(200).json({
-        success: true,
-        count: userHistory.length,
-        history: userHistory,
-      });
-    }
+    return res.status(200).json({
+      success: true,
+      count:
+        userHistory.length,
+      history:
+        userHistory,
+    });
   } catch (error) {
-    console.error('Get food history error:', error);
+    console.error(
+      '❌ Get food history error:',
+      error
+    );
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: 'Failed to retrieve food history.',
+      message:
+        'Failed to retrieve food history.',
     });
   }
 };
+
+// =========================================================
+// DELETE FOOD HISTORY
+// =========================================================
 
 // @desc    Delete a food scan from history
 // @route   DELETE /api/food/history/:id
-exports.deleteFoodHistory = async (req, res) => {
+exports.deleteFoodHistory = async (
+  req,
+  res
+) => {
   try {
-    const logId = req.params.id;
+    const logId =
+      req.params.id;
 
-    if (getIsMongoConnected()) {
-      await FoodLog.findByIdAndDelete(logId);
-    } else {
-      const index = inMemoryFoodLogs.findIndex(
-        (log) =>
-          log.id === logId ||
-          log._id === logId
+    if (
+      getIsMongoConnected()
+    ) {
+      await FoodLog.findByIdAndDelete(
+        logId
       );
+    } else {
+      const index =
+        inMemoryFoodLogs.findIndex(
+          (log) =>
+            log.id === logId ||
+            log._id === logId
+        );
 
       if (index !== -1) {
-        inMemoryFoodLogs.splice(index, 1);
+        inMemoryFoodLogs.splice(
+          index,
+          1
+        );
       }
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
-      message: 'Food log deleted successfully.',
+      message:
+        'Food log deleted successfully.',
     });
   } catch (error) {
-    console.error('Delete food history error:', error);
+    console.error(
+      '❌ Delete food history error:',
+      error
+    );
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: 'Failed to delete food log.',
+      message:
+        'Failed to delete food log.',
     });
   }
 };
-
+````
