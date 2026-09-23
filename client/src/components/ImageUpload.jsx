@@ -46,6 +46,90 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
     }
   };
 
+  const compressImage = (file) => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target.result;
+    };
+
+    reader.onerror = () => reject(new Error('Failed to read image'));
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+
+      // Maximum image dimension
+      const maxSize = 800;
+
+      let width = img.width;
+      let height = img.height;
+
+      if (width > height) {
+        if (width > maxSize) {
+          height = (height * maxSize) / width;
+          width = maxSize;
+        }
+      } else {
+        if (height > maxSize) {
+          width = (width * maxSize) / height;
+          height = maxSize;
+        }
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+
+      if (!ctx) {
+        reject(new Error('Canvas not supported'));
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+
+      // Try different qualities until image is below 150 KB
+      const compress = (quality) => {
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              reject(new Error('Image compression failed'));
+              return;
+            }
+
+            const sizeKB = blob.size / 1024;
+
+            if (sizeKB <= 150 || quality <= 0.2) {
+              const compressedFile = new File(
+                [blob],
+                'food.webp',
+                {
+                  type: 'image/webp',
+                }
+              );
+
+              resolve(compressedFile);
+              return;
+            }
+
+            compress(quality - 0.1);
+          },
+          'image/webp',
+          quality
+        );
+      };
+
+      compress(0.7);
+    };
+
+    img.onerror = () => reject(new Error('Failed to load image'));
+
+    reader.readAsDataURL(file);
+  });
+};
+
   const processFile = (file) => {
     if (!file.type.startsWith('image/')) {
       alert('Please upload an image file (JPG, PNG, WEBP).');
