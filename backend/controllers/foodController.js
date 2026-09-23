@@ -1,4 +1,4 @@
-````js
+
 // controllers/foodController.js
 // Analyzes food images with Gemini Vision and manages scan history
 
