@@ -19,36 +19,7 @@ export default function ImageUpload({ onAnalyze, isAnalyzing }) {
   const [selectedPresetName, setSelectedPresetName] = useState('');
   const fileInputRef = useRef(null);
 
-  const samplePresets = [
-    {
-      id: 'avocado-toast',
-      name: 'Avocado Toast & Egg',
-      caloriesEst: '~380 kcal',
-      imageUrl:
-        'https://images.unsplash.com/photo-1525351484163-7529414344d8?auto=format&fit=crop&w=600&q=80',
-    },
-    {
-      id: 'salmon-bowl',
-      name: 'Grilled Salmon Bowl',
-      caloriesEst: '~520 kcal',
-      imageUrl:
-        'https://images.unsplash.com/photo-1467003909585-2f8a72700288?auto=format&fit=crop&w=600&q=80',
-    },
-    {
-      id: 'chicken-salad',
-      name: 'Mediterranean Chicken Salad',
-      caloriesEst: '~410 kcal',
-      imageUrl:
-        'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=600&q=80',
-    },
-    {
-      id: 'berry-oatmeal',
-      name: 'Superfood Berry Oatmeal',
-      caloriesEst: '~310 kcal',
-      imageUrl:
-        'https://images.unsplash.com/photo-1517673400267-0251440c45dc?auto=format&fit=crop&w=600&q=80',
-    },
-  ];
+  
 
   // Compress image to <= 150 KB
   const compressImage = (file) => {
