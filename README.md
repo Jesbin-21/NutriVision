@@ -1,6 +1,6 @@
 # 🥗 NutriVision AI - Food Nutrition Analyzer
 
-A modern, beginner-friendly full-stack web application that lets users upload food images and get comprehensive nutritional breakdowns (calories, macronutrients, micronutrients, health score, dietary tags, and dietary advice) powered by **Google Gemini Vision**, **Express**, **MongoDB**, **JWT authentication**, and **React**.
+A modern full-stack web application that lets users upload food images and get comprehensive nutritional breakdowns (calories, macronutrients, micronutrients, health score, dietary tags, and dietary advice) powered by **Google Gemini Vision**, **Express**, **MongoDB**, **JWT authentication**, and **React**.
 
 ---
 
