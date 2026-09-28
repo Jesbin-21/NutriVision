@@ -1,105 +1,376 @@
-# 🥗 NutriVision AI - Food Nutrition Analyzer
+# 🥗 NutriVision AI — Food Nutrition Analyzer
 
-A modern full-stack web application that lets users upload food images and get comprehensive nutritional breakdowns (calories, macronutrients, micronutrients, health score, dietary tags, and dietary advice) powered by **Google Gemini Vision**, **Express**, **MongoDB**, **JWT authentication**, and **React**.
+NutriVision AI is a full-stack web application that analyzes food images using **Google Gemini Vision AI** and provides an estimated nutritional breakdown.
+
+Users can upload a meal image and receive information such as **calories, macronutrients, micronutrients, ingredients, health score, dietary tags, and nutrition advice**.
+
+The application also includes **JWT authentication** and personalized food-scan history stored in **MongoDB**.
 
 ---
 
-## 📁 Project Architecture
+## ✨ Features
+
+* 📸 Upload food images for AI-powered analysis
+* 🤖 Google Gemini Vision integration
+* 🔥 Estimated calorie information
+* 💪 Macronutrient breakdown
+
+  * Protein
+  * Carbohydrates
+  * Fat
+* 🥦 Micronutrient information
+* 🧂 Ingredient detection
+* ❤️ Health score
+* 🏷️ Dietary tags
+* 💡 Dietary advice
+* 👤 User registration and login
+* 🔐 JWT authentication
+* 📋 Personal food scan history
+* 🗑️ Delete previous food scans
+* 📱 Responsive user interface
+* 🖼️ Drag-and-drop image upload
+* 🧪 Sample food images for testing
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+
+* React.js
+* Vite
+* JavaScript
+* CSS
+* Lucide React
+
+### Backend
+
+* Node.js
+* Express.js
+* JavaScript
+* JWT
+* bcrypt
+* Multer
+
+### Database
+
+* MongoDB
+* Mongoose
+* MongoDB Atlas
+
+### AI
+
+* Google Gemini Vision API
+
+---
+
+## 📁 Project Structure
 
 ```text
-portfolio/
+NutriVision/
+│
 ├── backend/
 │   ├── config/
-│   │   └── db.js                 # MongoDB connection logic (with graceful demo fallback)
+│   │   └── db.js
+│   │
 │   ├── controllers/
-│   │   ├── authController.js     # User registration and login with bcrypt & JWT
-│   │   └── foodController.js     # Food vision analysis & nutrient history
+│   │   ├── authController.js
+│   │   └── foodController.js
+│   │
 │   ├── middleware/
-│   │   └── authMiddleware.js     # JWT token verification for protected endpoints
+│   │   └── authMiddleware.js
+│   │
 │   ├── models/
-│   │   ├── User.js               # Mongoose schema for User
-│   │   └── FoodLog.js            # Mongoose schema for Food scan records
+│   │   ├── User.js
+│   │   └── FoodLog.js
+│   │
 │   ├── routes/
-│   │   ├── authRoutes.js         # /api/auth/register, /api/auth/login, /api/auth/me
-│   │   └── foodRoutes.js         # /api/food/analyze, /api/food/history, /api/food/history/:id
-│   ├── .env                      # PORT, MONGO_URI, GEMINI_API_KEY, JWT_SECRET
-│   ├── .env.example              # Environment variables template
+│   │   ├── authRoutes.js
+│   │   └── foodRoutes.js
+│   │
+│   ├── .env
+│   ├── .env.example
 │   ├── package.json
-│   └── server.js                 # Express server entry point
+│   └── server.js
 │
 ├── client/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Button.jsx        # Reusable Button component with variant styles
-│   │   │   ├── Navbar.jsx        # Top header with profile info & logout
-│   │   │   ├── ImageUpload.jsx   # Drag & drop image picker + test presets
-│   │   │   └── NutrientDisplay.jsx # Nutrition visual cards & macro meters
+│   │   │   ├── Button.jsx
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── ImageUpload.jsx
+│   │   │   └── NutrientDisplay.jsx
+│   │   │
 │   │   ├── pages/
-│   │   │   ├── LoginPage.jsx     # Login & registration authentication page
-│   │   │   └── DashboardPage.jsx # Main food image scan & nutrient dashboard
-│   │   ├── App.jsx               # Auth state & page switcher
-│   │   ├── index.css              # Modern glassmorphism styling
+│   │   │   ├── LoginPage.jsx
+│   │   │   └── DashboardPage.jsx
+│   │   │
+│   │   ├── App.jsx
+│   │   ├── index.css
 │   │   └── main.jsx
+│   │
 │   ├── index.html
-│   ├── vite.config.js            # Vite config with proxy to backend port 5000
+│   ├── vite.config.js
 │   └── package.json
+│
 └── README.md
 ```
 
 ---
 
-## ⚙️ Environment Variables (`backend/.env`)
+## 🔄 How It Works
 
-Configure the following variables in `backend/.env`:
-
-| Variable | Description | Default |
-| :--- | :--- | :--- |
-| `PORT` | Express server port | `5000` |
-| `MONGO_URI` | MongoDB connection URL | `mongodb://127.0.0.1:27017/food_nutrition_db` |
-| `GEMINI_API_KEY` | Google Gemini API Key | Get from [Google AI Studio](https://aistudio.google.com/) |
-| `JWT_SECRET` | Secret key used to sign JWTs | `super_secret_food_analyzer_jwt_key_2025` |
-
-> **Note for Beginners:** If you don't have MongoDB running locally or haven't entered your Gemini API key yet, the application gracefully provides realistic demonstration mode so you can register, test scans, and explore the UI immediately!
+```text
+User
+  │
+  ▼
+Upload Food Image
+  │
+  ▼
+React Frontend
+  │
+  ▼
+Express Backend
+  │
+  ▼
+Gemini Vision AI
+  │
+  ▼
+Food & Nutrition Analysis
+  │
+  ├── Calories
+  ├── Macronutrients
+  ├── Micronutrients
+  ├── Ingredients
+  ├── Health Score
+  └── Dietary Advice
+  │
+  ▼
+MongoDB
+  │
+  ▼
+Personal Scan History
+```
 
 ---
 
-## 🚀 Running the Application with `npm run`
+## 🚀 Installation
 
-### Option 1: Running in separate folders (Standard)
+### 1. Clone the repository
 
-1. **Start the Backend Server**:
-   ```bash
-   cd backend
-   npm run dev
-   # or: npm start
-   ```
-   Server starts at `http://localhost:5000`.
+```bash
+git clone https://github.com/your-username/NutriVision.git
+cd NutriVision
+```
 
-2. **Start the Frontend Client**:
-   ```bash
-   cd client
-   npm run dev
-   ```
-   Client starts at `http://localhost:5173`.
+### 2. Install backend dependencies
+
+```bash
+cd backend
+npm install
+```
+
+### 3. Install frontend dependencies
+
+Open another terminal:
+
+```bash
+cd client
+npm install
+```
 
 ---
 
-### Option 2: Running from Root Directory
+## ▶️ Running the Application
 
-From the project root (`portfolio/`):
-- Start Server: `npm run server`
-- Start Client: `npm run client`
+### Start Backend
+
+```bash
+cd backend
+npm run dev
+```
+
+Backend:
+
+```text
+http://localhost:5000
+```
+
+### Start Frontend
+
+```bash
+cd client
+npm run dev
+```
+
+Frontend:
+
+```text
+http://localhost:5173
+```
 
 ---
 
 ## 📡 API Endpoints
 
-### Authentication (`/api/auth`)
-- `POST /api/auth/register` - Register a new user (`name`, `email`, `password`)
-- `POST /api/auth/login` - Authenticate user & receive JWT token (`email`, `password`)
-- `GET /api/auth/me` - Get profile of authenticated user (`Authorization: Bearer <token>`)
+### 🔐 Authentication
 
-### Food Nutrition (`/api/food`)
-- `POST /api/food/analyze` - Upload image file or base64 to extract nutrients with Gemini Vision
-- `GET /api/food/history` - Retrieve user's saved food scans
-- `DELETE /api/food/history/:id` - Delete a scan from history
+| Method | Endpoint             | Description                      |
+| ------ | -------------------- | -------------------------------- |
+| `POST` | `/api/auth/register` | Register a new user              |
+| `POST` | `/api/auth/login`    | Login and receive JWT            |
+| `GET`  | `/api/auth/me`       | Get authenticated user's profile |
+
+### 🥗 Food Analysis
+
+| Method   | Endpoint                | Description                       |
+| -------- | ----------------------- | --------------------------------- |
+| `POST`   | `/api/food/analyze`     | Analyze a food image using Gemini |
+| `GET`    | `/api/food/history`     | Get the user's food scan history  |
+| `DELETE` | `/api/food/history/:id` | Delete a food scan                |
+
+---
+
+## 🔐 Authentication
+
+NutriVision uses **JSON Web Tokens (JWT)** for authentication.
+
+Protected API requests use:
+
+```text
+Authorization: Bearer <token>
+```
+
+Protected features include:
+
+* User profile
+* Food analysis
+* Scan history
+* Deleting scan history
+
+---
+
+## 🤖 AI Food Analysis
+
+NutriVision sends the uploaded food image to **Google Gemini Vision**.
+
+The AI analyzes the image and provides structured nutritional information:
+
+```text
+Food
+├── Calories
+├── Protein
+├── Carbohydrates
+├── Fat
+├── Ingredients
+├── Vitamins
+├── Dietary Tags
+├── Health Score
+└── Dietary Advice
+```
+
+> ⚠️ Nutritional values generated by AI are estimates and should not be treated as medically accurate measurements.
+
+---
+
+## 📱 User Interface
+
+### Login & Registration
+
+Users can create an account and securely log in using JWT authentication.
+
+### Food Image Upload
+
+Users can:
+
+* Upload an image
+* Drag and drop an image
+* Select sample food images
+* Send the image for AI analysis
+
+### Nutrition Dashboard
+
+After analysis, the dashboard displays:
+
+* Food information
+* Calories
+* Macronutrients
+* Micronutrients
+* Ingredients
+* Health score
+* Dietary tags
+* Nutrition advice
+
+### Scan History
+
+Users can view their previous food analyses and delete individual records.
+
+---
+
+## 📊 Example Analysis
+
+```text
+Food: Chicken Biryani
+
+Calories: ~650 kcal
+
+Protein: ~32 g
+Carbohydrates: ~75 g
+Fat: ~24 g
+
+Ingredients:
+- Basmati rice
+- Chicken
+- Onion
+- Spices
+- Oil
+
+Dietary Tags:
+- High Protein
+- Non-Vegetarian
+```
+
+> Nutritional values are AI-generated estimates.
+
+---
+
+## 🌐 Deployment
+
+The application can be deployed using platforms such as:
+
+* Render
+* Vercel
+* MongoDB Atlas
+
+---
+
+## 🚀 Future Improvements
+
+* 📊 Nutrition history charts
+* 📅 Daily and weekly nutrition tracking
+* 🎯 Personalized calorie goals
+* 🥗 Meal recommendations
+* 🔔 Nutrition reminders
+* 📷 Improved food recognition
+* 📈 Nutrition progress tracking
+
+---
+
+## 👨‍💻 Author
+
+**Jesbin Jaison**
+
+BCA Graduate | MERN Full-Stack Developer
+
+### Technologies
+
+```text
+React.js • Node.js • Express.js • MongoDB
+JavaScript • REST APIs • JWT • Gemini AI
+```
+
+---
+
+## 📄 License
+
+This project is created for educational and portfolio purposes.
