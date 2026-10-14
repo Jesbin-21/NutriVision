@@ -21,6 +21,19 @@ app.use(cors()); // Allow cross-origin requests from frontend
 app.use(express.json({ limit: '15mb' })); // Parse incoming JSON payloads
 app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
+// Root endpoint & Ping routes (ideal for UptimeRobot, Render keep-alive, and monitoring)
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'online',
+    message: 'NutriVision AI Backend API is active and running',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+app.get('/ping', (req, res) => {
+  res.status(200).send('pong');
+});
+
 // Health Check route to verify server is running
 app.get('/api/health', (req, res) => {
   res.status(200).json({
@@ -56,4 +69,19 @@ app.listen(PORT, () => {
   console.log(`🔐 Auth API:          http://localhost:${PORT}/api/auth`);
   console.log(`🥗 Food Vision API:   http://localhost:${PORT}/api/food`);
   console.log('====================================================');
+
+  // Automatic Keep-Alive ping to prevent Render free tier cold-starts
+  const externalUrl = process.env.RENDER_EXTERNAL_URL || process.env.SERVER_URL;
+  if (externalUrl) {
+    const pingUrl = `${externalUrl.replace(/\/$/, '')}/api/health`;
+    console.log(`⏱️ Keep-alive scheduled: pinging ${pingUrl} every 14 minutes.`);
+    setInterval(async () => {
+      try {
+        await fetch(pingUrl);
+        console.log(`[Keep-Alive] Pinged ${pingUrl} at ${new Date().toISOString()}`);
+      } catch (err) {
+        console.warn(`[Keep-Alive] Failed to ping ${pingUrl}:`, err.message);
+      }
+    }, 14 * 60 * 1000); // 14 minutes
+  }
 });

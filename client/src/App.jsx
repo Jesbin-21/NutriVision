@@ -19,10 +19,15 @@ export default function App() {
     return localStorage.getItem('food_app_token') ? 'dashboard' : 'login';
   });
 
-  // Verify token on load if available
+  // Warm up backend and verify token on load
   useEffect(() => {
+    const apiUrl = import.meta.env.VITE_API_URL || '';
+    
+    // Proactive background ping to wake up sleeping backend on page visit
+    fetch(`${apiUrl}/api/health`).catch(() => {});
+
     if (token) {
-      fetch('/api/auth/me', {
+      fetch(`${apiUrl}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then((res) => res.json())
